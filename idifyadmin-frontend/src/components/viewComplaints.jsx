@@ -1,0 +1,159 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+const ViewComplaints = () => {
+    const [complaints, setComplaints] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterStatus, setFilterStatus] = useState('');
+
+    useEffect(() => {
+        const fetchComplaints = async () => {
+            try {
+                const response = await axios.get('http://localhost:8084/complaints');
+                setComplaints(response.data);
+                setLoading(false);
+            } catch (err) {
+                setError(err);
+                setLoading(false);
+            }
+        };
+
+        fetchComplaints();
+    }, []);
+
+    const handleStatusChange = async (complaintId, newStatus) => {
+        try {
+            await axios.put(`http://localhost:8084/complaints/${complaintId}`, { status: newStatus });
+            setComplaints(complaints.map(complaint =>
+                complaint._id === complaintId ? { ...complaint, status: newStatus } : complaint
+            ));
+        } catch (err) {
+            console.error('Error updating status:', err);
+            alert('Failed to update status.');
+        }
+    };
+
+    const handleAcceptReject = async (complaintId, action) => {
+        try {
+            await axios.put(`http://localhost:8084/complaints/${complaintId}`, { status: action });
+            setComplaints(complaints.map(complaint =>
+                complaint._id === complaintId ? { ...complaint, status: action } : complaint
+            ));
+        } catch (err) {
+            console.error(`Error ${action}ing complaint:`, err);
+            alert(`Failed to ${action} complaint.`);
+        }
+    };
+
+    const filteredComplaints = complaints.filter(complaint => {
+        const searchMatch =
+            complaint.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            complaint.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            complaint.mobileNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            complaint.ward.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            complaint.category.toLowerCase().includes(searchTerm.toLowerCase()); // Added category to search
+
+        const statusMatch = filterStatus ? complaint.status === filterStatus : true;
+
+        return searchMatch && statusMatch;
+    });
+
+    return (
+        <div className="container mt-4">
+            <h1 className="text-center text-primary mb-4">Manage Complaints</h1>
+
+            <div className="row mb-4 g-3">
+                <div className="col-md-6">
+                    <div className="input-group">
+                        <input
+                            type="text"
+                            placeholder="Search complaints related on category"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="form-control shadow-sm"
+                        />
+                        <button className="btn btn-outline-secondary" type="button" onClick={() => {}}>
+                            Search
+                        </button>
+                    </div>
+                </div>
+                <div className="col-md-4">
+                    <select
+                        value={filterStatus}
+                        onChange={(e) => setFilterStatus(e.target.value)}
+                        className="form-select shadow-sm"
+                    >
+                        <option value="">All Statuses</option>
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Resolved">Resolved</option>
+                        <option value="Accepted">Accepted</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+            </div>
+
+            <div className="table-responsive">
+                <table className="table table-hover table-bordered text-center">
+                    <thead className="table-dark">
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Mobile No</th>
+                            <th>Ward</th>
+                            <th>Category</th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredComplaints.map((complaint) => (
+                            <tr key={complaint._id}>
+                                <td>{complaint.name}</td>
+                                <td>{complaint.email}</td>
+                                <td>{complaint.mobileNo}</td>
+                                <td>{complaint.ward}</td>
+                                <td>{complaint.category}</td>
+                                <td>{complaint.status}</td>
+                                <td>
+                                    {complaint.status === 'Pending' ? (
+                                        <div>
+                                            <button
+                                                className="btn btn-success btn-sm me-1"
+                                                onClick={() => handleAcceptReject(complaint._id, 'Accepted')}
+                                            >
+                                                Accept
+                                            </button>
+                                            <button
+                                                className="btn btn-danger btn-sm"
+                                                onClick={() => handleAcceptReject(complaint._id, 'Rejected')}
+                                            >
+                                                Reject
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <select
+                                            value={complaint.status}
+                                            onChange={(e) => handleStatusChange(complaint._id, e.target.value)}
+                                            className="form-select form-select-sm shadow-sm"
+                                        >
+                                            <option value="Pending">Pending</option>
+                                            <option value="In Progress">In Progress</option>
+                                            <option value="Resolved">Resolved</option>
+                                            <option value="Accepted">Accepted</option>
+                                            <option value="Rejected">Rejected</option>
+                                        </select>
+                                    )}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+};
+
+export default ViewComplaints;
