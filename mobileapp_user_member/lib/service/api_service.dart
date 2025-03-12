@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = "http://192.168.1.40:8080"; // Change this
+  static const String baseUrl = "http://localhost:8080"; // Change this
 
   static Future<http.Response> createUser(Map<String, dynamic> userData) async {
     final Uri url = Uri.parse("$baseUrl/user"); // Change based on your API route
@@ -42,8 +42,8 @@ class ApiService {
     final response = await http.get(url, headers: {"Content-Type": "application/json",});
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
-      if (responseData['status'] == true && responseData['data'] is List && responseData['data'].isNotEmpty) {
-        return responseData['data'][0]; // Return the first user in the list
+      if (responseData['status'] == true ) {
+        return responseData['data']; // Return the first user in the list
       } else {
         throw Exception("User not found or invalid response format");
       }

@@ -66,6 +66,25 @@ const getUser=async(req,res,next)=>{
         });
     }
 };
+
+const getUserById=async(req,res,next)=>{
+    try{
+        id = req.params.id
+        const user=await User.findById(id);
+        res.status(200).json({
+            status:true,
+            data:user
+        });
+    }
+    catch(error){
+        res.status(500).json({
+            status:false,
+            message:'Error fetching data',
+            error:error.message
+        });
+    }
+};
+
 const updateUser=async(req,res,next)=>{
     try{
         const user=await User.findByIdAndUpdate(req.params.id,req.body,{new:true});
@@ -115,4 +134,4 @@ const deleteUser = async (req, res, next) => {
     }
 };
 
-module.exports = { addUser,getUser,updateUser, deleteUser};
+module.exports = { addUser,getUser,getUserById,updateUser, deleteUser};

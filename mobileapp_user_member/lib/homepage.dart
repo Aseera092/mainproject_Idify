@@ -33,6 +33,7 @@ class _UserHomePageState extends State<UserHomePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _id = prefs.getString('userId');
+      print(_id);
       if (_id == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('User ID not found')),

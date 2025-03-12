@@ -23,6 +23,7 @@ class _ViewprofileState extends State<Viewprofileuser> {
   Future<void> fetchUserData() async {
     try {
       final response = await ApiService.getUser(widget.userId);
+      print(response);
       setState(() {
         userData = response;
         isLoading = false;
