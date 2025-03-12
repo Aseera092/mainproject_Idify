@@ -37,6 +37,7 @@ class _RegisterPageState extends State<Register> {
   final TextEditingController _countryController = TextEditingController();
   final TextEditingController _rationCardNoController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _wardNoController = TextEditingController();
 
   Future<void> _pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -131,7 +132,8 @@ class _RegisterPageState extends State<Register> {
           'country': _countryController.text,
           'rationCardNo': _rationCardNoController.text,
           'upload_rationcard': base64Image,
-          'password': _passwordController.text
+          'password': _passwordController.text,
+          'wardNo': _wardNoController.text,
         });
 
         response.then((onValue) async {
@@ -253,6 +255,7 @@ class _RegisterPageState extends State<Register> {
       _rationCardNoController.clear();
       _rationCardImage = null;
       _passwordController.clear();
+      _wardNoController.clear();
     });
   }
 
@@ -401,7 +404,33 @@ class _RegisterPageState extends State<Register> {
                         keyboardType: TextInputType.number,
                         validator: _validatePincode,
                       ),
-                      _buildCustomTextField(
+                      DropdownButtonFormField<int>(
+                        value: int.tryParse(_wardNoController.text),
+                        decoration: InputDecoration(
+                          labelText: "Ward No",
+                          prefixIcon: Icon(Icons.location_on, color: Colors.blue),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                          filled: true,
+                          fillColor: Colors.white,
+                        ),
+                        items: List.generate(19, (index) => index + 1)
+                            .map((wardNo) => DropdownMenuItem(
+                                  value: wardNo,
+                                  child: Text(wardNo.toString()),
+                                ))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _wardNoController.text = value.toString();
+                          });
+                        },
+                        validator: (value) => value == null ? "Ward No is required" : null,
+                      ), 
+                      SizedBox(height: 10,),
+                         _buildCustomTextField(
                         controller: _districtController, 
                         label: "District",
                         icon: Icons.location_city,

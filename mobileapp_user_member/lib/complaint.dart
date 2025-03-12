@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:idfy_user_application/service/api_service.dart'; // Import your ApiService
+import 'package:idfy_user_application/complaint.dart'; // Import the ComplaintForm class
 
 class Request extends StatefulWidget {
   @override
@@ -14,6 +17,7 @@ class _RequestState extends State<Request> {
   final TextEditingController complaint = TextEditingController();
   final TextEditingController description = TextEditingController();
   String? selectedCategory;
+  bool _isLoading = false;
 
   final List<String> categories = [
     'Electrical',
@@ -30,7 +34,7 @@ class _RequestState extends State<Request> {
   // Get category color
   Color getCategoryColor(String? category) {
     if (category == null) return Colors.grey;
-    
+
     switch (category.toLowerCase()) {
       case 'electrical':
         return Colors.amber;
@@ -52,7 +56,7 @@ class _RequestState extends State<Request> {
   // Get category icon
   IconData getCategoryIcon(String? category) {
     if (category == null) return Icons.category;
-    
+
     switch (category.toLowerCase()) {
       case 'electrical':
         return Icons.electrical_services;
@@ -112,34 +116,81 @@ class _RequestState extends State<Request> {
     }
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      // Show an attractive success message
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            title: Row(
-              children: [
-                Icon(Icons.check_circle, color: Colors.green, size: 30),
-                SizedBox(width: 10),
-                Text("Success"),
-              ],
-            ),
-            content: Text("Your complaint has been submitted successfully. You can track its status in the complaints section."),
-            actions: [
-              TextButton(
-                child: Text("OK", style: TextStyle(color: Colors.blue.shade900)),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
+      setState(() {
+        _isLoading = true;
+      });
+      try {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? userId = prefs.getString('userId');
+        if (userId == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('User ID not found')),
           );
-        },
-      );
+          return;
+        }
+        String formattedDate = DateFormat('yyyy-MM-ddTHH:mm:ss.SSSZ')
+            .format(DateTime.parse(date.text).toUtc());
+
+        Map<String, dynamic> complaintData = {
+          'Date': formattedDate,
+          'Complaint': complaint.text,
+          'category': selectedCategory,
+          'Description': description.text,
+          'userId': userId,
+        };
+        await ApiService.addComplaint(complaintData);
+
+        setState(() {
+          _isLoading = false;
+        });
+
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.green, size: 30),
+                  SizedBox(width: 10),
+                  Text("Success"),
+                ],
+              ),
+              content: Text(
+                  "Your complaint has been submitted successfully. You can track its status in the complaints section."),
+              actions: [
+                TextButton(
+                  child: Text("OK", style: TextStyle(color: Colors.blue.shade900)),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            );
+          },
+        );
+        _clearForm();
+      } catch (e) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to submit complaint: $e')),
+        );
+      }
     }
+  }
+
+  void _clearForm() {
+    setState(() {
+      date.clear();
+      complaint.clear();
+      description.clear();
+      selectedCategory = null;
+      complaintImage = null;
+    });
   }
 
   @override
@@ -156,80 +207,82 @@ class _RequestState extends State<Request> {
         backgroundColor: Colors.blue.shade900,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white), 
+          icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.blue.shade900, Colors.blue.shade50],
-            stops: const [0.0, 0.3],
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                // Header section
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                  alignment: Alignment.centerLeft,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "File a New Complaint",
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        "Please provide detailed information about your issue",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white.withOpacity(0.9),
-                        ),
-                      ),
-                    ],
-                  ),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.blue.shade900, Colors.blue.shade50],
+                  stops: const [0.0, 0.3],
                 ),
-                
-                // Form section
-                Container(
-                  margin: EdgeInsets.all(16),
-                  padding: EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        spreadRadius: 1,
-                        blurRadius: 10,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Category selection
-                        Text(
-                          "Complaint Category",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold, 
-                            fontSize: 16, 
-                            color: Colors.grey.shade700
-                          ),
+              ),
+              child: SafeArea(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      // Header section
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                        alignment: Alignment.centerLeft,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "File a New Complaint",
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              "Please provide detailed information about your issue",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white.withOpacity(0.9),
+                              ),
+                            ),
+                          ],
                         ),
+                      ),
+                      // Form section
+                      Container(
+                        margin: EdgeInsets.all(16),
+                        padding: EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              spreadRadius: 1,
+                              blurRadius: 10,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Category selection
+                              Text(
+                                "Complaint Category",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
                         SizedBox(height: 10),
                         Container(
                           decoration: BoxDecoration(

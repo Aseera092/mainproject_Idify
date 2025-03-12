@@ -49,14 +49,14 @@ class _ViewprofileState extends State<Viewprofileuser> {
         centerTitle: true,
         elevation: 0,
         backgroundColor: Theme.of(context).primaryColor,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () {
-              // Add edit profile functionality here
-            },
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.edit),
+        //     onPressed: () {
+        //       // Add edit profile functionality here
+        //     },
+        //   ),
+        // ],
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())

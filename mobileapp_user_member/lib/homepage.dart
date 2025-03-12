@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:idfy_user_application/aboutus.dart';
 import 'package:idfy_user_application/memberProfileView.dart';
 import 'package:idfy_user_application/notification.dart';
-import 'package:idfy_user_application/request.dart';
+import 'package:idfy_user_application/complaint.dart';
 import 'package:idfy_user_application/trackComplaintas.dart';
 import 'package:idfy_user_application/viewprofile.dart'; // Import Viewprofileuser
 
@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'login.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:idfy_user_application/memberSupportchat.dart';
 
 class UserHomePage extends StatefulWidget {
   // Change to StatefulWidget
@@ -216,6 +217,18 @@ class _UserHomePageState extends State<UserHomePage> {
                       MaterialPageRoute(builder: (context) => AboutUsPage()),
                     ),
                   ),
+                  _buildFeatureTile(
+                    icon: Icons.person_2,
+                    title: "Profile",
+                    subtitle: "View your profile",
+                    color: Colors.purple[700]!,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Viewprofileuser(userId: _id!),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -414,21 +427,6 @@ class _UserHomePageState extends State<UserHomePage> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Text(
-                    "User Name",
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    "user@example.com",
-                    style: GoogleFonts.poppins(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -450,27 +448,28 @@ class _UserHomePageState extends State<UserHomePage> {
                       title: "Home",
                       onTap: () => Navigator.pop(context),
                     ),
-                 _buildDrawerItem(
-  context,
-  icon: Icons.person_outline,
-  title: "View Profile",
-  onTap: () {
-    print(" $_id"); // Print userId
+                    _buildDrawerItem(
+                      context,
+                      icon: Icons.person_outline,
+                      title: "View Profile",
+                      onTap: () {
+                        print(" $_id"); // Print userId
 
-    if (_id != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Viewprofileuser(userId: _id!),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('User ID not found')),
-      );
-    }
-  },
-),
+                        if (_id != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  Viewprofileuser(userId: _id!),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('User ID not found')),
+                          );
+                        }
+                      },
+                    ),
                     _buildDrawerItem(
                       context,
                       icon: Icons.notifications_outlined,
@@ -507,6 +506,19 @@ class _UserHomePageState extends State<UserHomePage> {
                     ),
                     const Divider(),
                     _buildDrawerItem(
+                      context,
+                      icon: Icons.help_outline,
+                      title: 'Help & Support',
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SupportChatPage()),
+                        );
+                      },
+                    ),
+                      _buildDrawerItem(
                       context,
                       icon: Icons.logout,
                       title: "Logout",

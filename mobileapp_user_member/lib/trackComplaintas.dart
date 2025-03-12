@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart'; 
 
 class TrackComplaints extends StatefulWidget {
   @override
@@ -6,36 +9,71 @@ class TrackComplaints extends StatefulWidget {
 }
 
 class _TrackComplaintsState extends State<TrackComplaints> {
-  // Replace this with your actual complaint data source (e.g., API call, local database)
-  List<Map<String, dynamic>> complaints = [
-    {
-      'id': '001',
-      'complaint': 'Faulty wiring in apartment.',
-      'date': '2023-10-26',
-      'image': null, // Replace with image path if available
-      'status': 'Pending',
-      'description': 'The electrical wiring in the living room is exposed and causing sparks occasionally. This is a safety hazard that needs immediate attention.',
-      'category': 'Electrical',
-    },
-    {
-      'id': '002',
-      'complaint': 'Noise complaint from neighbor.',
-      'date': '2023-10-24',
-      'image': null,
-      'status': 'Resolved',
-      'description': 'Excessive noise from apartment 302 during late night hours. The noise includes loud music and shouting that disrupts sleep.',
-      'category': 'Neighbor',
-    },
-    //Add more data as needed.
-  ];
+  late Future<List<Map<String, dynamic>>> _complaintsFuture;
 
-  void _deleteComplaint(int index, String reason) {
-    setState(() {
-      complaints.removeAt(index);
-    });
-    
-    // Here you would typically call your API to delete the complaint
-    // and store the withdrawal reason in your database
+  @override
+  void initState() {
+    super.initState();
+    _complaintsFuture = _fetchComplaints();
+  }
+
+Future<List<Map<String, dynamic>>> _fetchComplaints() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? userId = prefs.getString('userId');
+  print(userId);
+  
+  // Make sure userId exists
+  if (userId == null) {
+    throw Exception('User ID not found. Please login again.');
+   
+  }
+  
+  final url = Uri.parse('http://localhost:8080/complaint/${userId}');
+
+  try {
+    final response = await http.get(url);
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+      if (responseData['status'] == true) {
+        final List<dynamic> data = responseData['data'];
+        return data.map((item) => Map<String, dynamic>.from(item)).toList();
+        
+      }
+      throw Exception('Failed to load complaints: ${responseData['message']}');
+    } else {
+      throw Exception('Failed to load complaints: ${response.statusCode}');
+    }
+  } catch (error) {
+    throw Exception('Failed to load complaints: $error');
+  }
+}
+  void _deleteComplaint(String complaintId) async {
+    // Implement API call to delete complaint by ID
+     final url = Uri.parse('http://localhost:8080/complaint/$complaintId');  
+
+    try {
+      final response = await http.delete(url);
+
+      if (response.statusCode == 200) {
+        // Refresh the complaint list after successful deletion
+        setState(() {
+          _complaintsFuture = _fetchComplaints();
+        });
+        // Show confirmation
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Complaint withdrawn successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        throw Exception('Failed to delete complaint: ${response.statusCode}');
+      }
+    } catch (error) {
+      throw Exception('Failed to delete complaint: $error');
+    }
   }
 
   @override
@@ -44,7 +82,7 @@ class _TrackComplaintsState extends State<TrackComplaints> {
       appBar: AppBar(
         title: const Text(
           'Track Complaints',
-          style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
         ),
         backgroundColor: Colors.blue.shade900,
         elevation: 0,
@@ -59,11 +97,18 @@ class _TrackComplaintsState extends State<TrackComplaints> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [Colors.blue.shade900, Colors.blue.shade100],
-            stops: const [0.0, 1.0],
+            stops: const [0.0, 1.0], // Fixed missing values in stops array
           ),
         ),
-        child: complaints.isEmpty
-            ? const Center(
+        child: FutureBuilder<List<Map<String, dynamic>>>(
+          future: _complaintsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -91,18 +136,21 @@ class _TrackComplaintsState extends State<TrackComplaints> {
                     ),
                   ],
                 ),
-              )
-            : ListView.builder(
+              );
+            } else {
+              final complaints = snapshot.data!;
+              return ListView.builder(
                 padding: const EdgeInsets.all(12.0),
                 itemCount: complaints.length,
                 itemBuilder: (context, index) {
                   final complaint = complaints[index];
                   return Dismissible(
-                    key: Key(complaint['id']),
+                    key: Key(complaint['id'].toString()),
                     direction: DismissDirection.endToStart,
                     confirmDismiss: (direction) async {
                       // Show dialog to confirm deletion and get reason
-                      return await _showDeleteConfirmationDialog(context, index);
+                      return await _showDeleteConfirmationDialog(
+                          context, complaint['id'].toString());
                     },
                     background: Container(
                       alignment: Alignment.centerRight,
@@ -139,7 +187,9 @@ class _TrackComplaintsState extends State<TrackComplaints> {
                             MaterialPageRoute(
                               builder: (context) => ComplaintDetails(
                                 complaint: complaint,
-                                onDelete: () => _showDeleteConfirmationDialog(context, index),
+                                onDelete: () =>
+                                    _showDeleteConfirmationDialog(
+                                        context, complaint['id'].toString()),
                               ),
                             ),
                           );
@@ -153,14 +203,16 @@ class _TrackComplaintsState extends State<TrackComplaints> {
                                 vertical: 8,
                               ),
                               decoration: BoxDecoration(
-                                color: getStatusColor(complaint['status']).withOpacity(0.2),
+                                color: getStatusColor(complaint['status'])
+                                    .withOpacity(0.2),
                                 borderRadius: const BorderRadius.only(
                                   topLeft: Radius.circular(12),
                                   topRight: Radius.circular(12),
                                 ),
                               ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     'ID: ${complaint['id']}',
@@ -199,19 +251,23 @@ class _TrackComplaintsState extends State<TrackComplaints> {
                                     width: 60,
                                     height: 60,
                                     decoration: BoxDecoration(
-                                      color: getCategoryColor(complaint['category']).withOpacity(0.2),
+                                      color: getCategoryColor(
+                                              complaint['category'])
+                                          .withOpacity(0.2),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Icon(
                                       getCategoryIcon(complaint['category']),
                                       size: 30,
-                                      color: getCategoryColor(complaint['category']),
+                                      color: getCategoryColor(
+                                          complaint['category']),
                                     ),
                                   ),
                                   const SizedBox(width: 16),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           complaint['complaint'],
@@ -258,7 +314,9 @@ class _TrackComplaintsState extends State<TrackComplaints> {
                                           Icons.delete_outline,
                                           color: Colors.red.shade300,
                                         ),
-                                        onPressed: () => _showDeleteConfirmationDialog(context, index),
+                                        onPressed: () =>
+                                            _showDeleteConfirmationDialog(
+                                                context, complaint['id'].toString()),
                                       ),
                                       const Icon(
                                         Icons.chevron_right,
@@ -275,7 +333,10 @@ class _TrackComplaintsState extends State<TrackComplaints> {
                     ),
                   );
                 },
-              ),
+              );
+            }
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -292,7 +353,8 @@ class _TrackComplaintsState extends State<TrackComplaints> {
     );
   }
 
-  Future<bool> _showDeleteConfirmationDialog(BuildContext context, int index) async {
+  Future<bool> _showDeleteConfirmationDialog(
+      BuildContext context, String complaintId) async {
     final reasonController = TextEditingController();
     final formKey = GlobalKey<FormState>();
     bool? result = await showDialog<bool>(
@@ -342,16 +404,8 @@ class _TrackComplaintsState extends State<TrackComplaints> {
               onPressed: () {
                 if (formKey.currentState!.validate()) {
                   // Withdraw the complaint with the provided reason
-                  _deleteComplaint(index, reasonController.text);
+                  _deleteComplaint(complaintId);
                   Navigator.of(context).pop(true);
-                  
-                  // Show confirmation
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Complaint withdrawn successfully'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -383,7 +437,7 @@ class _TrackComplaintsState extends State<TrackComplaints> {
 
   Color getCategoryColor(String? category) {
     if (category == null) return Colors.grey;
-    
+
     switch (category.toLowerCase()) {
       case 'electrical':
         return Colors.amber;
@@ -402,7 +456,7 @@ class _TrackComplaintsState extends State<TrackComplaints> {
 
   IconData getCategoryIcon(String? category) {
     if (category == null) return Icons.report_problem;
-    
+
     switch (category.toLowerCase()) {
       case 'electrical':
         return Icons.electrical_services;
@@ -424,7 +478,7 @@ class ComplaintDetails extends StatelessWidget {
   final Map<String, dynamic> complaint;
   final VoidCallback onDelete;
 
-  ComplaintDetails({required this.complaint, required this.onDelete});
+  const ComplaintDetails({required this.complaint, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -461,7 +515,8 @@ class ComplaintDetails extends StatelessWidget {
               child: Column(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: getStatusColor(complaint['status']),
                       borderRadius: BorderRadius.circular(20),

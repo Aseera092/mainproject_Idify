@@ -69,4 +69,61 @@ class ApiService {
       throw Exception("Error: $e");
     }
   }
+  static Future<http.Response> addComplaint(Map<String, dynamic> complaintData) async {
+    final Uri url = Uri.parse("$baseUrl/complaint"); // Adjust based on your API route
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(complaintData),
+      );
+      return response;
+    } catch (e) {
+      throw Exception("Error: $e");
+    }
+  }
+  
+   // Get Complaints API
+  static Future<List<Map<String, dynamic>>> getComplaints() async {
+    final Uri url = Uri.parse("$baseUrl/complaints"); // Match backend route
+    try {
+      final response = await http.get(url, headers: {"Content-Type": "application/json"});
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['status'] == true) {
+          return List<Map<String, dynamic>>.from(responseData['data']); // Convert JSON list to Dart list
+        } else {
+          throw Exception("Failed to fetch complaints: ${responseData['message']}");
+        }
+      } else {
+        throw Exception("Error: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error: $e");
+    }
+  }
+  // // Delete Complaint API
+  // static Future<http.Response> deleteComplaint(String complaintId) async {
+  //   final Uri url = Uri.parse("$baseUrl/complaint/$complaintId"); // Match backend route
+  //   try {
+  //     final response = await http.delete(
+  //       url,
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //     );
+  //     return response;
+  //   } catch (e) {
+  //     throw Exception("Error: $e");
+  //   }
+  // }
+
 }
+
+
+
+
+

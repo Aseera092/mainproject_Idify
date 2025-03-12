@@ -35,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen>
     _animationController.forward();
 
     // Timer to navigate to the login page
-    Timer(const Duration(seconds: 5), () async {
+    Timer(const Duration(seconds: 2), () async {
       if (await validateLogin()) {
         SharedPreferences pref = await SharedPreferences.getInstance();
         if (await pref.getString("role") == "user") {
@@ -51,6 +51,11 @@ class _SplashScreenState extends State<SplashScreen>
             MaterialPageRoute(builder: (context) => const LoginPage()),
           );
         }
+      }
+      else{
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
       }
     });
   }
