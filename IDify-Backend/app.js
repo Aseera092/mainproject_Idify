@@ -8,6 +8,8 @@ const user=require("./routes/user")
 const home=require("./routes/home")
 const member= require('./routes/member')
 const auth=require("./routes/auth")
+const complaint=require("./routes/complaint")
+
 const bodyParser = require('body-parser');
 
 
@@ -19,6 +21,8 @@ app.use('/user',user);
 app.use('/home',home);
 app.use('/member',member);
 app.use('/auth', auth);
+app.use('/complaint', complaint);
+
 
 Mongoose.connect("mongodb+srv://aseera:aseera@cluster0.x0tifel.mongodb.net/IdifyDB")
     .then(() => console.log('Connected to MongoDB'))

@@ -42,6 +42,10 @@ const UserSchema=Mongoose.Schema({
         type:String,
         required:true,
     },
+    wardNo:{
+        type:String,
+        required:true,
+    },
     district:{
         type:String,
         required:true,
@@ -64,7 +68,6 @@ const UserSchema=Mongoose.Schema({
         default: 'online',
         required: true
     },
-  
     homedetails:{
         type:Mongoose.Schema.Types.ObjectId,
         ref:"home",

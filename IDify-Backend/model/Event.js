@@ -7,8 +7,8 @@ const EventSchema=mongoose.Mongoose.schema({
     },
     Time:{
         type:Number,
-        required:true,},
-    
+        required:true,
+    },
     uploadevent: {
         type: String,
         required: true,
