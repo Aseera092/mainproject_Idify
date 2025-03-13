@@ -1,5 +1,9 @@
 const Mongoose=require("mongoose")
+<<<<<<< HEAD
 const ComplaintSchema=Mongoose.schema({
+=======
+const ComplaintSchema=Mongoose.Schema({
+>>>>>>> 74ec7a9 (ch)
     Date:
     {
         type:Date,

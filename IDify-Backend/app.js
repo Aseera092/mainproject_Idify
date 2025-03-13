@@ -9,6 +9,11 @@ const home=require("./routes/home")
 const member= require('./routes/member')
 const auth=require("./routes/auth")
 const complaint=require("./routes/complaint")
+<<<<<<< HEAD
+=======
+const notification=require("./routes/notification")
+
+>>>>>>> 74ec7a9 (ch)
 
 const bodyParser = require('body-parser');
 
@@ -22,6 +27,11 @@ app.use('/home',home);
 app.use('/member',member);
 app.use('/auth', auth);
 app.use('/complaint', complaint);
+<<<<<<< HEAD
+=======
+app.use('/notification', notification);
+
+>>>>>>> 74ec7a9 (ch)
 
 
 Mongoose.connect("mongodb+srv://aseera:aseera@cluster0.x0tifel.mongodb.net/IdifyDB")
@@ -31,5 +41,10 @@ Mongoose.connect("mongodb+srv://aseera:aseera@cluster0.x0tifel.mongodb.net/Idify
 app.listen(8080,()=>{
     console.log("Server running")
 })
+
+// in your main.js or app.js file
+
+// download your service account credential from firebase
+// and add it to a config folder in your project
 
 module.exports=app;

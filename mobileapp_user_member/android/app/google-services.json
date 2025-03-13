@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "575762734530",
+    "firebase_url": "https://idfy-1e72a-default-rtdb.firebaseio.com",
+    "project_id": "idfy-1e72a",
+    "storage_bucket": "idfy-1e72a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:575762734530:android:db0c940ebe2f73865e0a5b",
+        "android_client_info": {
+          "package_name": "com.example.mobileapp_user_member"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1j8ATYy49pzvg-XX-AdExBqFpG7VXGXw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
