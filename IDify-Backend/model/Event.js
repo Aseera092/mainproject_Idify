@@ -1,44 +1,39 @@
-const mongoose=require("mongoose")
-const EventSchema=mongoose.Mongoose.schema({
-    Date:
-    {
-        type:Date,
-        required:true,
-    },
-    Time:{
-        type:Number,
-        required:true,
-    },
-    uploadevent: {
-        type: String,
-        required: true,
-    },
-    NameofEvent:{
-        type:String,
-        required:true,
-    },
-    Description:{
-        type:String,
-        required:true,
-    },
-    status:{
-        type: String,
-        enum: ['Pending', 'Approved','Rejected','Collected'],
-        default: 'Pending',
-        required: true
-    },
-    rejectMessage:{
-        type: String
-    },
-    panjayathid:{
-        type:String,
-        required:true,
-    },
-    WardNoSelection:{
-        type:Number,
-        required:true
-    },
+const mongoose = require("mongoose");
 
-})
-var EventModel=Mongoose.model("Event",EventSchema)
-module.exports=EventModel
+const EventSchema = new mongoose.Schema(
+  {
+    Date: {
+      type: Date,
+      required: true,
+    },
+    Time: {
+      type: String,
+      required: true,
+    },
+    upload_event: { // Choose one of these.
+      type: String,
+      required: true,
+    },
+    NameofEvent: { // Consistent camelCase.
+      type: String,
+      required: true,
+    },
+    Description: {
+      type: String,
+      required: true,
+    },
+    Location: {
+      type: String,
+      required: true,
+    },
+    WardNoSelection: { // Consistent camelCase.
+      type: Number,
+      required: true,
+    },
+  },
+  { timestamps: true } // Add timestamps.
+);
+
+const EventModel = mongoose.model("Event", EventSchema);
+
+module.exports = EventModel;

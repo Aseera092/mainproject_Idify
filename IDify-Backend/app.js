@@ -9,11 +9,10 @@ const home=require("./routes/home")
 const member= require('./routes/member')
 const auth=require("./routes/auth")
 const complaint=require("./routes/complaint")
-<<<<<<< HEAD
-=======
+const event=require("./routes/event")
 const notification=require("./routes/notification")
 
->>>>>>> 74ec7a9 (ch)
+
 
 const bodyParser = require('body-parser');
 
@@ -27,11 +26,10 @@ app.use('/home',home);
 app.use('/member',member);
 app.use('/auth', auth);
 app.use('/complaint', complaint);
-<<<<<<< HEAD
-=======
+app.use('/event', event); 
 app.use('/notification', notification);
 
->>>>>>> 74ec7a9 (ch)
+
 
 
 Mongoose.connect("mongodb+srv://aseera:aseera@cluster0.x0tifel.mongodb.net/IdifyDB")

@@ -15,6 +15,7 @@ import ViewAllUsers from "../components/viewUser";
 import ViewMembers from "../components/viewMember";
 import ViewHomeSpotId from "../components/viewHomeid";
 import SearchHomeSpotId from "../components/searchHomeId";
+import ViewEventPage from "../components/viewEvent";
 
 
 export const routes = createBrowserRouter([
@@ -59,6 +60,10 @@ export const routes = createBrowserRouter([
       {
         path:'add-events',
         element: <EventPage/>
+      },
+      {
+        path:'view-events',
+        element: <ViewEventPage/>
       },
       ,{
         path:'add-member',

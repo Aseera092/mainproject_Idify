@@ -20,6 +20,10 @@ const SIDEBARLIST = [
                 link: '/dashboard/add-events'
             },
             {
+                title: 'ViewEvents',
+                link: '/dashboard/view-events'
+            },
+            {
                 title: 'Notifications',
                 link: '/dashboard/view-notifications'
             },

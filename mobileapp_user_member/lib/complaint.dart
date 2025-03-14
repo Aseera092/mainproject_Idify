@@ -1,10 +1,11 @@
+
+
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:idfy_user_application/service/api_service.dart'; // Import your ApiService
-import 'package:idfy_user_application/complaint.dart'; // Import the ComplaintForm class
 
 class Request extends StatefulWidget {
   @override
@@ -130,9 +131,19 @@ class _RequestState extends State<Request> {
           );
           return;
         }
-        String formattedDate = DateFormat('yyyy-MM-ddTHH:mm:ss.SSSZ')
-            .format(DateTime.parse(date.text).toUtc());
-
+         String formattedDate;
+      if (date.text.isEmpty) {
+        // If date is empty, use current date
+        formattedDate = DateFormat('yyyy-MM-ddTHH:mm:ss.SSSZ').format(DateTime.now().toUtc());
+      } else {
+        try {
+          formattedDate = DateFormat('yyyy-MM-ddTHH:mm:ss.SSSZ')
+              .format(DateTime.parse(date.text).toUtc());
+        } catch (e) {
+          // If parsing fails, use current date
+          formattedDate = DateFormat('yyyy-MM-ddTHH:mm:ss.SSSZ').format(DateTime.now().toUtc());
+        }
+      }
         Map<String, dynamic> complaintData = {
           'Date': formattedDate,
           'Complaint': complaint.text,
@@ -253,36 +264,37 @@ class _RequestState extends State<Request> {
                           ],
                         ),
                       ),
-                      // Form section
-                      Container(
-                        margin: EdgeInsets.all(16),
-                        padding: EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
-                              spreadRadius: 1,
-                              blurRadius: 10,
-                              offset: Offset(0, 3),
-                            ),
-                          ],
+                
+                // Form section
+                Container(
+                  margin: EdgeInsets.all(16),
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        spreadRadius: 1,
+                        blurRadius: 10,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Category selection
+                        Text(
+                          "Complaint Category",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold, 
+                            fontSize: 16, 
+                            color: Colors.grey.shade700
+                          ),
                         ),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Category selection
-                              Text(
-                                "Complaint Category",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                  color: Colors.grey.shade700,
-                                ),
-                              ),
                         SizedBox(height: 10),
                         Container(
                           decoration: BoxDecoration(

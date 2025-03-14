@@ -28,6 +28,7 @@ Future<List<Map<String, dynamic>>> _fetchComplaints() async {
    
   }
   
+  // final url = Uri.parse('http://192.168.1.33:8080/complaint/${userId}');
   final url = Uri.parse('http://localhost:8080/complaint/${userId}');
 
   try {
@@ -51,7 +52,8 @@ Future<List<Map<String, dynamic>>> _fetchComplaints() async {
 }
   void _deleteComplaint(String complaintId) async {
     // Implement API call to delete complaint by ID
-     final url = Uri.parse('http://localhost:8080/complaint/$complaintId');  
+    //  final url = Uri.parse('http://192.168.1.33:8080/complaint/$complaintId');
+     final url = Uri.parse('http://localhost:8080/complaint/$complaintId');    
 
     try {
       final response = await http.delete(url);
