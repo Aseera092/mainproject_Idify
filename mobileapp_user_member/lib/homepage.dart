@@ -58,6 +58,9 @@ class _UserHomePageState extends State<UserHomePage> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
+        iconTheme: IconThemeData(
+          color: Colors.white, //change your color here
+        ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -518,7 +521,7 @@ class _UserHomePageState extends State<UserHomePage> {
                         );
                       },
                     ),
-                      _buildDrawerItem(
+                    _buildDrawerItem(
                       context,
                       icon: Icons.logout,
                       title: "Logout",

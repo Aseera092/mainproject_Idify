@@ -1,8 +1,10 @@
 // import 'dart:nativewrappers/_internal/vm/lib/ffi_native_type_patch.dart';
 
 import 'package:flutter/material.dart';
+import 'package:idfy_user_application/homepage.dart';
 import 'dart:async';
 import 'package:idfy_user_application/login.dart';
+import 'package:idfy_user_application/memberHome.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -40,11 +42,11 @@ class _SplashScreenState extends State<SplashScreen>
         SharedPreferences pref = await SharedPreferences.getInstance();
         if (await pref.getString("role") == "user") {
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const LoginPage()),
+            MaterialPageRoute(builder: (context) => const UserHomePage()),
           );
         } else if (await pref.getString("role") == "member") {
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const LoginPage()),
+            MaterialPageRoute(builder: (context) => const MemberHomePage()),
           );
         } else {
           Navigator.of(context).pushReplacement(

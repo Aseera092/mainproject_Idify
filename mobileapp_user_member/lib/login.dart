@@ -23,8 +23,8 @@ class _LoginPageState extends State<LoginPage> {
       final String email = _emailController.text;
       final String password = _passwordController.text;
 
-      final url = Uri.parse('http://localhost:8080/auth/login'); // Replace with your login URL
-      // final url = Uri.parse('http://192.168.1.33:8080/auth/login'); // Replace with your login URL
+      // final url = Uri.parse('http://localhost:8080/auth/login'); // Replace with your login URL
+      final url = Uri.parse('http://192.168.51.13:8080/auth/login'); // Replace with your login URL
 
       try {
         final response = await http.post(

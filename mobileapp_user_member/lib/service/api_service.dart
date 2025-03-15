@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  // static const String baseUrl = "http://192.168.1.33:8080"; // Change this
-  static const String baseUrl = "http://localhost:8080";
+  static const String baseUrl = "http://192.168.51.13:8080"; // Change this
+  // static const String baseUrl = "http://localhost:8080";
 
 
   static Future<http.Response> createUser(Map<String, dynamic> userData) async {

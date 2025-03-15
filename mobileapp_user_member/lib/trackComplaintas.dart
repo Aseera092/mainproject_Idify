@@ -28,8 +28,8 @@ Future<List<Map<String, dynamic>>> _fetchComplaints() async {
    
   }
   
-  // final url = Uri.parse('http://192.168.1.33:8080/complaint/${userId}');
-  final url = Uri.parse('http://localhost:8080/complaint/${userId}');
+  final url = Uri.parse('http://192.168.51.13:8080/complaint/${userId}');
+  // final url = Uri.parse('http://localhost:8080/complaint/${userId}');
 
   try {
     final response = await http.get(url);
@@ -106,6 +106,7 @@ Future<List<Map<String, dynamic>>> _fetchComplaints() async {
           future: _complaintsFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
+              print(snapshot);
               return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
@@ -147,12 +148,12 @@ Future<List<Map<String, dynamic>>> _fetchComplaints() async {
                 itemBuilder: (context, index) {
                   final complaint = complaints[index];
                   return Dismissible(
-                    key: Key(complaint['id'].toString()),
+                    key: Key(complaint['_id'].toString()),
                     direction: DismissDirection.endToStart,
                     confirmDismiss: (direction) async {
                       // Show dialog to confirm deletion and get reason
                       return await _showDeleteConfirmationDialog(
-                          context, complaint['id'].toString());
+                          context, complaint['_id'].toString());
                     },
                     background: Container(
                       alignment: Alignment.centerRight,
@@ -167,7 +168,7 @@ Future<List<Map<String, dynamic>>> _fetchComplaints() async {
                           ),
                           SizedBox(height: 4),
                           Text(
-                            'Withdraw',
+                            'Delete',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -191,7 +192,7 @@ Future<List<Map<String, dynamic>>> _fetchComplaints() async {
                                 complaint: complaint,
                                 onDelete: () =>
                                     _showDeleteConfirmationDialog(
-                                        context, complaint['id'].toString()),
+                                        context, complaint['_id'].toString()),
                               ),
                             ),
                           );
@@ -217,7 +218,7 @@ Future<List<Map<String, dynamic>>> _fetchComplaints() async {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    'ID: ${complaint['id']}',
+                                    'ID: ${complaint['_id']}',
                                     style: TextStyle(
                                       fontWeight: FontWeight.w500,
                                       color: Colors.blue.shade900,
@@ -272,7 +273,7 @@ Future<List<Map<String, dynamic>>> _fetchComplaints() async {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          complaint['complaint'],
+                                          complaint['Description'],
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
@@ -298,7 +299,7 @@ Future<List<Map<String, dynamic>>> _fetchComplaints() async {
                                             ),
                                             const SizedBox(width: 4),
                                             Text(
-                                              'Filed on: ${complaint['date']}',
+                                              'Filed on: ${complaint['Date'].substring(0,10)}',
                                               style: const TextStyle(
                                                 color: Colors.grey,
                                                 fontSize: 14,
@@ -486,15 +487,19 @@ class ComplaintDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        iconTheme: IconThemeData(
+          color: Colors.white, //change your color here
+        ),
         title: const Text(
           'Complaint Details',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold,color: Color.fromARGB(255, 255, 255, 255)),
         ),
         backgroundColor: Colors.blue.shade900,
         elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline),
+            color: Color.fromARGB(255, 255, 255, 255),
             onPressed: onDelete,
             tooltip: 'Withdraw Complaint',
           ),
@@ -533,7 +538,7 @@ class ComplaintDetails extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    'Complaint ID: ${complaint['id']}',
+                    'Complaint ID: ${complaint['_id']}',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -577,7 +582,7 @@ class ComplaintDetails extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                complaint['complaint'],
+                                complaint['category'],
                                 style: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -617,7 +622,7 @@ class ComplaintDetails extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          complaint['date'],
+                          complaint['Date'].substring(0,10),
                           style: const TextStyle(fontSize: 16),
                         ),
                       ],
@@ -636,7 +641,7 @@ class ComplaintDetails extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      complaint['description'] ?? 'No description provided.',
+                      complaint['Description'] ?? 'No description provided.',
                       style: const TextStyle(fontSize: 16),
                     ),
                     
@@ -668,148 +673,148 @@ class ComplaintDetails extends StatelessWidget {
             ),
             
             // Timeline Card
-            Card(
-              margin: const EdgeInsets.all(16),
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Timeline',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Timeline(
-                      status: complaint['status'],
-                      date: complaint['date'],
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            // Card(
+            //   margin: const EdgeInsets.all(16),
+            //   elevation: 4,
+            //   shape: RoundedRectangleBorder(
+            //     borderRadius: BorderRadius.circular(16),
+            //   ),
+            //   child: Padding(
+            //     padding: const EdgeInsets.all(16),
+            //     child: Column(
+            //       crossAxisAlignment: CrossAxisAlignment.start,
+            //       children: [
+            //         const Text(
+            //           'Timeline',
+            //           style: TextStyle(
+            //             fontSize: 18,
+            //             fontWeight: FontWeight.bold,
+            //           ),
+            //         ),
+            //         const SizedBox(height: 16),
+            //         Timeline(
+            //           status: complaint['status'],
+            //           date: complaint['Date'],
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
             
             // Action Buttons
-            Card(
-              margin: const EdgeInsets.all(16),
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Actions',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
+            // Card(
+            //   margin: const EdgeInsets.all(16),
+            //   elevation: 4,
+            //   shape: RoundedRectangleBorder(
+            //     borderRadius: BorderRadius.circular(16),
+            //   ),
+            //   child: Padding(
+            //     padding: const EdgeInsets.all(16),
+            //     child: Column(
+            //       crossAxisAlignment: CrossAxisAlignment.start,
+            //       children: [
+            //         const Text(
+            //           'Actions',
+            //           style: TextStyle(
+            //             fontSize: 18,
+            //             fontWeight: FontWeight.bold,
+            //           ),
+            //         ),
+            //         const SizedBox(height: 16),
                     
-                    // Withdraw Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: onDelete,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        icon: const Icon(
-                          Icons.delete_outline,
-                          color: Colors.white,
-                        ),
-                        label: const Text(
-                          'Withdraw Complaint',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ),
+            //         // Withdraw Button
+            //         SizedBox(
+            //           width: double.infinity,
+            //           child: ElevatedButton.icon(
+            //             onPressed: onDelete,
+            //             style: ElevatedButton.styleFrom(
+            //               backgroundColor: Colors.red,
+            //               padding: const EdgeInsets.symmetric(vertical: 16),
+            //               shape: RoundedRectangleBorder(
+            //                 borderRadius: BorderRadius.circular(12),
+            //               ),
+            //             ),
+            //             icon: const Icon(
+            //               Icons.delete_outline,
+            //               color: Colors.white,
+            //             ),
+            //             label: const Text(
+            //               'Withdraw Complaint',
+            //               style: TextStyle(fontSize: 16),
+            //             ),
+            //           ),
+            //         ),
                     
-                    const SizedBox(height: 12),
+            //         const SizedBox(height: 12),
                     
-                    // Feedback Button for resolved complaints
-                    if (complaint['status'] == 'Resolved')
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            // Show feedback dialog
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: const Text('Rate Resolution'),
-                                  content: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Text('How satisfied are you with the resolution?'),
-                                      const SizedBox(height: 16),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                        children: List.generate(
-                                          5,
-                                          (index) => IconButton(
-                                            icon: Icon(
-                                              Icons.star,
-                                              color: Colors.amber,
-                                              size: 36,
-                                            ),
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(
-                                                  content: Text('Thank you for your feedback!'),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          icon: const Icon(
-                            Icons.thumb_up_alt_outlined,
-                            color: Colors.white,
-                          ),
-                          label: const Text(
-                            'Rate Resolution',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ),
-                      ),
+            //         // Feedback Button for resolved complaints
+            //         if (complaint['status'] == 'Resolved')
+            //           SizedBox(
+            //             width: double.infinity,
+            //             child: ElevatedButton.icon(
+            //               onPressed: () {
+            //                 // Show feedback dialog
+            //                 showDialog(
+            //                   context: context,
+            //                   builder: (BuildContext context) {
+            //                     return AlertDialog(
+            //                       title: const Text('Rate Resolution'),
+            //                       content: Column(
+            //                         mainAxisSize: MainAxisSize.min,
+            //                         children: [
+            //                           const Text('How satisfied are you with the resolution?'),
+            //                           const SizedBox(height: 16),
+            //                           Row(
+            //                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            //                             children: List.generate(
+            //                               5,
+            //                               (index) => IconButton(
+            //                                 icon: Icon(
+            //                                   Icons.star,
+            //                                   color: Colors.amber,
+            //                                   size: 36,
+            //                                 ),
+            //                                 onPressed: () {
+            //                                   Navigator.of(context).pop();
+            //                                   ScaffoldMessenger.of(context).showSnackBar(
+            //                                     const SnackBar(
+            //                                       content: Text('Thank you for your feedback!'),
+            //                                     ),
+            //                                   );
+            //                                 },
+            //                               ),
+            //                             ),
+            //                           ),
+            //                         ],
+            //                       ),
+            //                     );
+            //                   },
+            //                 );
+            //               },
+            //               style: ElevatedButton.styleFrom(
+            //                 backgroundColor: Colors.green,
+            //                 padding: const EdgeInsets.symmetric(vertical: 16),
+            //                 shape: RoundedRectangleBorder(
+            //                   borderRadius: BorderRadius.circular(12),
+            //                 ),
+            //               ),
+            //               icon: const Icon(
+            //                 Icons.thumb_up_alt_outlined,
+            //                 color: Colors.white,
+            //               ),
+            //               label: const Text(
+            //                 'Rate Resolution',
+            //                 style: TextStyle(fontSize: 16),
+            //               ),
+            //             ),
+            //           ),
                     
-                    const SizedBox(height: 12),
+            //         const SizedBox(height: 12),
                     
-                  ],
-                ),
-              ),
-            ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
             const SizedBox(height: 20),
           ],
         ),
