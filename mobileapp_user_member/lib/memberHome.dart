@@ -210,10 +210,11 @@ class _MemberHomePageState extends State<MemberHomePage> {
         backgroundColor: Colors.indigo[900],
         child: const Icon(Icons.support_agent, color: Colors.white),
         onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Support chat feature coming soon', style: GoogleFonts.poppins())),
-          );
-        },
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SupportChatPage()),
+              );
+            },
       ),
     );
   }

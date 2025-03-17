@@ -4,6 +4,7 @@ import 'package:idfy_user_application/memberProfileView.dart';
 import 'package:idfy_user_application/notification.dart';
 import 'package:idfy_user_application/complaint.dart';
 import 'package:idfy_user_application/trackComplaintas.dart';
+import 'package:idfy_user_application/userEventView.dart';
 import 'package:idfy_user_application/viewprofile.dart'; // Import Viewprofileuser
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -498,6 +499,15 @@ class _UserHomePageState extends State<UserHomePage> {
                           MaterialPageRoute(
                               builder: (context) => TrackComplaints())),
                     ),
+                    // _buildDrawerItem(
+                    //   context,
+                    //   icon: Icons.track_changes,
+                    //   title: "View Events",
+                    //   onTap: () => Navigator.push(
+                    //       context,
+                    //       MaterialPageRoute(
+                    //           builder: (context) => Event())),
+                    // ),
                     _buildDrawerItem(
                       context,
                       icon: Icons.info_outline,

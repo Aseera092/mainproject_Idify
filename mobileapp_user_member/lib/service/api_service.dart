@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = "http://192.168.51.13:8080"; // Change this
+  static const String baseUrl = "http://192.168.1.35:8080"; // Change this
   // static const String baseUrl = "http://localhost:8080";
 
 
@@ -23,7 +23,7 @@ class ApiService {
   }
 
   static Future<http.Response> login(Map<String, dynamic> credentials) async {
-    final Uri url = Uri.parse("$baseUrl/login"); // Change based on your login API route
+    final Uri url = Uri.parse("$baseUrl/auth/login"); // Change based on your login API route
     try {
       final response = await http.post(
         url,
@@ -160,7 +160,149 @@ class ApiService {
     }
   }
 
+
+// membercomplaintview
+
+
+  // Get complaints for a member with ward number filtering and user details in one call
+//  static Future<List<Map<String, dynamic>>> getComplaintsAndUserDetails(String wardNo) async {
+//     final Uri url = Uri.parse("$baseUrl/complaint/get-member/$wardNo"); // Combined endpoint
+//     try {
+//       final response = await http.get(
+//         url,
+//         headers: {"Content-Type": "application/json"},
+//       );
+
+//       if (response.statusCode == 200) {
+//         final responseData = jsonDecode(response.body);
+//         if (responseData['status'] == true) {
+//           return List<Map<String, dynamic>>.from(responseData['data']); // Return combined data
+//         } else {
+//           throw Exception("Failed to fetch complaints and user details: ${responseData['message']}");
+//         }
+//       } else {
+//         throw Exception("Error: ${response.statusCode}");
+//       }
+//     } catch (e) {
+//       throw Exception("Error: $e");
+//     }
+//   }
+static Future<List<Map<String, dynamic>>> getmemberComplaints(String wardNo) async {
+    final Uri url = Uri.parse("$baseUrl/complaint/get-member/$wardNo"); // Match the backend endpoint
+    try {
+      final response = await http.get(
+        url,
+        headers: {"Content-Type": "application/json"},
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['status'] == true && responseData['data'] is List) {
+          return List<Map<String, dynamic>>.from(responseData['data']);
+        } else {
+          throw Exception("Failed to fetch complaints: ${responseData['message'] ?? 'Invalid response'}");
+        }
+      } else {
+        throw Exception("Error: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error: $e");
+    }
+  }
+
+static Future<List<Map<String, dynamic>>> updateComplaintStatus(String id,Map<String, dynamic> data) async {
+    final Uri url = Uri.parse("$baseUrl/complaint/$id"); // Combined endpoint
+    try {
+      final response = await http.put(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(data),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['status'] == true) {
+          return List<Map<String, dynamic>>.from(responseData['data']); // Return combined data
+        } else {
+          throw Exception("Failed to fetch complaints and user details: ${responseData['message']}");
+        }
+      } else {
+        throw Exception("Error: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error: $e");
+    }
+  }
 }
+
+// userEventView
+
+
+// // memberprofile
+
+
+// class AdminMemberService {
+//   final String baseUrl;
+//   final String adminToken; // Add admin token for authentication
+
+//   AdminMemberService(this.baseUrl, this.adminToken);
+
+//   Future<Map<String, dynamic>> addMemberByAdmin(Map<String, dynamic> memberData) async {
+//     final Uri url = Uri.parse('$baseUrl/admin/members'); // Assuming admin endpoint is /admin/members
+//     try {
+//       final response = await http.post(
+//         url,
+//         headers: {
+//           'Content-Type': 'application/json',
+//           'Authorization': 'Bearer $adminToken', // Include admin token in headers
+//         },
+//         body: jsonEncode(memberData),
+//       );
+
+//       final responseData = jsonDecode(response.body);
+
+//       if (response.statusCode == 201) {
+//         return responseData;
+//       } else {
+//         throw Exception(responseData['message'] ?? 'Failed to add member: ${response.statusCode}');
+//       }
+//     } catch (e) {
+//       throw Exception('Error adding member: $e');
+//     }
+//   }
+// }
+
+// class MemberService {
+//   final String baseUrl;
+
+//   MemberService(this.baseUrl);
+
+//   Future<List<dynamic>> getMembersForUser() async {
+//     final Uri url = Uri.parse('$baseUrl/members/user'); // Assuming your backend route is /members/user
+//     try {
+//       final response = await http.get(
+//         url,
+//         headers: {
+//           'Content-Type': 'application/json',
+//         },
+//       );
+
+//       final responseData = jsonDecode(response.body);
+
+//       if (response.statusCode == 200) {
+//         if (responseData['status'] == true) {
+//           return responseData['data'];
+//         } else {
+//           throw Exception(responseData['message'] ?? 'Failed to get members: ${response.statusCode}');
+//         }
+//       } else {
+//         throw Exception('Failed to get members: ${response.statusCode}');
+//       }
+//     } catch (e) {
+//       throw Exception('Error fetching members: $e');
+//     }
+//   }
+// }
 
 
 

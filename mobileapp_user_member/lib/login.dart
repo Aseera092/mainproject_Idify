@@ -5,6 +5,7 @@ import 'package:idfy_user_application/homepage.dart';
 import 'package:idfy_user_application/memberHome.dart';
 import 'package:idfy_user_application/register.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Import shared_preferences
+import 'service/api_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -23,15 +24,11 @@ class _LoginPageState extends State<LoginPage> {
       final String email = _emailController.text;
       final String password = _passwordController.text;
 
-      // final url = Uri.parse('http://localhost:8080/auth/login'); // Replace with your login URL
-      final url = Uri.parse('http://192.168.51.13:8080/auth/login'); // Replace with your login URL
-
       try {
-        final response = await http.post(
-          url,
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode({'email': email, 'password': password}),
-        );
+        final response = await ApiService.login({
+          "email": email,
+          "password": password,
+        });
 
         if (response.statusCode == 200) {
           final data = jsonDecode(response.body);
