@@ -1,6 +1,6 @@
 
 var express = require('express');
-const { getComplaints, addComplaint, getComplaintsByUser, updateComplaint, deleteComplaint, updateStatus, getComplaintsForMember } = require('../controller/complaintController');
+const { getComplaints, addComplaint, getComplaintsByUser, updateComplaint, deleteComplaint, updateStatus, getComplaintsForMember, getComplaintsForPanchayat } = require('../controller/complaintController');
 
 var router = express.Router();
 
@@ -12,6 +12,7 @@ router.route('/')
 
 router.route('/get-forwarded').get(getComplaints)
 router.route('/get-member/:ward').get(getComplaintsForMember)
+router.route('/get-panchayath').get(getComplaintsForPanchayat)
 
 router.route('/:user')
     .get(getComplaintsByUser)

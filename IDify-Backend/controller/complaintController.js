@@ -1,4 +1,5 @@
 const ComplaintModel = require("../model/complaint");
+const UserModel = require("../model/User");
 
 const addComplaint = async (req, res, next) => {
   try {
@@ -57,7 +58,7 @@ const getComplaintsForMember = async (req, res, next) => {
     const wardNo = req.params.ward;
     const complaint = await ComplaintModel.find({ 
         userId: { $in: (await UserModel.find({ wardNo })).map(user => user._id) },
-    });
+    }).populate('userId','-upload_rationcard');
       res.status(200).json({
         status: true,
         data: complaint,
@@ -115,27 +116,27 @@ const updateComplaint = async (req, res, next) => {
 
 
 const updateStatus = async (req, res, next) => {
-    try {
-      const complaint = await ComplaintModel.findByIdAndUpdate(req.params.id, req.body);
-      if (!complaint) {
-        return res.status(404).json({
-          status: false,
-          message: "user not found",
-        });
-      }
-      res.status(200).json({
-        status: true,
-        message: "User updated successfully",
-        data: complaint,
-      });
-    } catch (error) {
-      res.status(500).json({
+  try {
+    const complaint = await ComplaintModel.findByIdAndUpdate(req.params.id, req.body);
+    if (!complaint) {
+      return res.status(404).json({
         status: false,
-        message: "Error updating user data",
-        error: error.message,
+        message: "user not found",
       });
     }
-  };
+    res.status(200).json({
+      status: true,
+      message: "User updated successfully",
+      data: complaint,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: "Error updating user data",
+      error: error.message,
+    });
+  }
+};
 
 const deleteComplaint = async (req, res, next) => {
   try {
@@ -161,6 +162,34 @@ const deleteComplaint = async (req, res, next) => {
     });
   }
 };
+//panchayathview complaint
+ // Assuming you have your Complaint model
+
+ // Assuming you have a User model too.
+ const getComplaintsForPanchayat = async (req, res) => {
+  try {
+      const complaints = await ComplaintModel.find({
+          $or: [
+              { status: "Approved" },
+              { status: "Accepted" }
+          ]
+      }).populate('userId', '-upload_rationcard');
+
+      res.status(200).json({
+          status: true,
+          data: complaints,
+      });
+  } catch (error) {
+      res.status(500).json({
+          status: false,
+          message: 'Error fetching complaints',
+          error: error.message,
+      });
+  }
+};
+ 
+ 
+
 
 
 module.exports = {
@@ -171,5 +200,6 @@ getComplaintsForMember,
   updateComplaint,
   deleteComplaint,
   getComplaintsByUser,
-  updateStatus
+  updateStatus,
+  getComplaintsForPanchayat
 };
