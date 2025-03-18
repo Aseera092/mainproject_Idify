@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = "http://10.0.31.168:8080"; // Change this
+  static const String baseUrl = "http://192.168.1.35:8080"; // Change this
   // static const String baseUrl = "http://localhost:8080";
 
 
@@ -51,47 +51,6 @@ class ApiService {
       }
     } else {
       throw Exception("Failed to load user: ${response.statusCode}");
-    }
-  } catch (e) {
-    throw Exception("Error: $e");
-  }
-}
-
-// getmemberprofile
- Future<Map<String, dynamic>> getMemberById(String memberId) async {
-  try {
-    final response = await http.get(Uri.parse('$baseUrl/member/$memberId'));
-
-    if (response.statusCode == 200) {
-      final decodedResponse = json.decode(response.body);
-
-      if (decodedResponse['status'] == true) {
-        return decodedResponse['data'] as Map<String, dynamic>;
-      } else {
-        throw Exception(
-            'API returned status: false. Message: ${decodedResponse['message']}');
-      }
-    } else {
-      throw Exception('Failed to fetch member. Status code: ${response.statusCode}');
-    }
-  } catch (e) {
-    print('Error fetching member: $e');
-    rethrow;
-  }
-  }
-  static Future<Map<String, dynamic>> getMember(String memberId) async {
-  final Uri url = Uri.parse("$baseUrl/member/$memberId");
-  try {
-    final response = await http.get(url, headers: {"Content-Type": "application/json",});
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      if (responseData['status'] == true ) {
-        return responseData['data']; // Return the first user in the list
-      } else {
-        throw Exception("Member not found or invalid response format");
-      }
-    } else {
-      throw Exception("Failed to load Member: ${response.statusCode}");
     }
   } catch (e) {
     throw Exception("Error: $e");
@@ -296,77 +255,72 @@ Future<List<Map<String, dynamic>>> getEvents() async {
       rethrow; // Rethrow the exception to be handled in the UI
     }
   }
+
+
+  // MemberprofileView
+// API Service methods
+static Future<List<dynamic>> getMembers() async {
+  final Uri url = Uri.parse("$baseUrl/member");
+  try {
+    final response = await http.get(url, headers: {
+      "Content-Type": "application/json",
+    });
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      if (responseData['status'] == true) {
+        return List.from(responseData['data']);
+      } else {
+        throw Exception("Members not found or invalid response format");
+      }
+    } else {
+      throw Exception("Failed to load members: ${response.statusCode}");
+    }
+  } catch (e) {
+    throw Exception("Error: $e");
+  }
 }
 
 
+static Future<Map<String, dynamic>> getMemberById(String memberId) async {
+  // Corrected memberId validation
+  if (memberId.isEmpty) {
+    throw Exception("Invalid member ID provided");
+  }
 
-// // memberprofile
+  final Uri url = Uri.parse("$baseUrl/member/$memberId");
+  print("Requesting: ${url.toString()}");
+  print("memberId before API call: $memberId"); 
 
+  try {
+    // Add a timeout to prevent hanging connections
+    final response = await http.get(
+      url,
+      headers: {"Content-Type": "application/json"},
+    ).timeout(const Duration(seconds: 15));
 
-// class AdminMemberService {
-//   final String baseUrl;
-//   final String adminToken; // Add admin token for authentication
+    print("Response status: ${response.statusCode}");
+    print("Response body: ${response.body}");
 
-//   AdminMemberService(this.baseUrl, this.adminToken);
-
-//   Future<Map<String, dynamic>> addMemberByAdmin(Map<String, dynamic> memberData) async {
-//     final Uri url = Uri.parse('$baseUrl/admin/members'); // Assuming admin endpoint is /admin/members
-//     try {
-//       final response = await http.post(
-//         url,
-//         headers: {
-//           'Content-Type': 'application/json',
-//           'Authorization': 'Bearer $adminToken', // Include admin token in headers
-//         },
-//         body: jsonEncode(memberData),
-//       );
-
-//       final responseData = jsonDecode(response.body);
-
-//       if (response.statusCode == 201) {
-//         return responseData;
-//       } else {
-//         throw Exception(responseData['message'] ?? 'Failed to add member: ${response.statusCode}');
-//       }
-//     } catch (e) {
-//       throw Exception('Error adding member: $e');
-//     }
-//   }
-// }
-
-// class MemberService {
-//   final String baseUrl;
-
-//   MemberService(this.baseUrl);
-
-//   Future<List<dynamic>> getMembersForUser() async {
-//     final Uri url = Uri.parse('$baseUrl/members/user'); // Assuming your backend route is /members/user
-//     try {
-//       final response = await http.get(
-//         url,
-//         headers: {
-//           'Content-Type': 'application/json',
-//         },
-//       );
-
-//       final responseData = jsonDecode(response.body);
-
-//       if (response.statusCode == 200) {
-//         if (responseData['status'] == true) {
-//           return responseData['data'];
-//         } else {
-//           throw Exception(responseData['message'] ?? 'Failed to get members: ${response.statusCode}');
-//         }
-//       } else {
-//         throw Exception('Failed to get members: ${response.statusCode}');
-//       }
-//     } catch (e) {
-//       throw Exception('Error fetching members: $e');
-//     }
-//   }
-// }
-
-
-
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      if (responseData['status'] == true) {
+        return responseData['data'];
+      } else {
+        throw Exception("Member not found or invalid response format");
+      }
+    } else {
+      // Show more detailed error based on status code
+      if (response.statusCode == 404) {
+        throw Exception("Member with ID $memberId not found");
+      } else {
+        throw Exception("Failed to load member: ${response.statusCode}");
+      }
+    }
+  } catch (e) {
+    print("Detailed error: $e");
+    throw Exception("Error: $e");
+  }
+}
+}
 
 

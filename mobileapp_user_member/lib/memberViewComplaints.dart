@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'service/api_service.dart';
 
 
@@ -10,7 +11,7 @@ class ComplaintsPage extends StatefulWidget {
 }
 
 class _ComplaintsPageState extends State<ComplaintsPage> {
-  late Future<List<Map<String, dynamic>>> _complaintsFuture;
+  Future<List<Map<String, dynamic>>> _complaintsFuture = Future.value([]); // Initialize to avoid LateInitializationError
 
   @override
   void initState() {
@@ -19,9 +20,18 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
      // Example ward number
   }
 
-void init(){
-  _complaintsFuture = ApiService.getComplaintsAndUserDetails('3').then((res) { //ward number want to store in shared prefrence and update here from shraed preference
+void init()async{
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  print(prefs.getString('wardNo') ?? '');
+  _complaintsFuture = ApiService.getComplaintsAndUserDetails(prefs.getString('wardNo') ?? '').then((res) { // Ward number to be stored in shared preferences and updated here from shared preferences
+      debugPrint('Response: $res'); // Use debugPrint for logging in production
       return Future.value(res);
+    }).catchError((error) {
+      debugPrint('Error fetching complaints: $error');
+      return Future.value([]);
+    });
+    setState(() {
+      
     });
 }
 
@@ -29,6 +39,7 @@ void init(){
     ApiService.updateComplaintStatus(id, {
       "status":status
     }).then((res)=>{
+      print(res),
        ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Complaint $status')),
     ),
@@ -77,16 +88,17 @@ void init(){
                         style: TextStyle(color: Colors.grey),
                       ),
                       SizedBox(height: 10),
+                      if(complaint["status"]?.toLowerCase() == 'pending')
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           ElevatedButton(
-                            onPressed: () => updateComplaintStatus(complaint['id'], 'Approved'),
+                            onPressed: () => updateComplaintStatus(complaint['_id'], 'Approved'),
                             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
                             child: Text('Approve'),
                           ),
                           ElevatedButton(
-                            onPressed: () => updateComplaintStatus(complaint['id'], 'Rejected'),
+                            onPressed: () => updateComplaintStatus(complaint['_id'], 'Rejected'),
                             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                             child: Text('Reject'),
                           ),

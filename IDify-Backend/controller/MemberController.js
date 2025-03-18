@@ -63,6 +63,40 @@ const getMember=async(req,res,next)=>{
         });
     }
 };
+const getMemberById = async (req, res) => {
+    try {
+        console.log("Incoming Request Params:", req.params); // Debugging
+
+        const { id } = req.params; // Extracting id correctly
+        if (!id || id === "_id") {
+            return res.status(400).json({
+                status: false,
+                message: "Invalid member ID",
+            });
+        }
+
+        const member = await Member.findById(id); // Find member by ID
+        if (!member) {
+            return res.status(404).json({
+                status: false,
+                message: "Member not found",
+            });
+        }
+
+        res.status(200).json({
+            status: true,
+            data: member,
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: false,
+            message: "Error fetching data",
+            error: error.message,
+        });
+    }
+};
+// member
+
 
 const updateMember = async (req, res, next) => {
     try {
@@ -114,4 +148,4 @@ const deleteMember = async (req, res, next) => {
     }
 };
 
-module.exports = { addMember, getMember,updateMember, deleteMember};
+module.exports = { addMember, getMember,updateMember, deleteMember,getMemberById};

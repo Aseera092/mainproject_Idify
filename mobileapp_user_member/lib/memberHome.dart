@@ -4,6 +4,7 @@ import 'package:idfy_user_application/memberProfileView.dart';
 import 'package:idfy_user_application/memberSupportchat.dart';
 import 'package:idfy_user_application/memberViewComplaints.dart';
 import 'package:idfy_user_application/memberSettings.dart';
+import 'package:idfy_user_application/memberAnalytics.dart';
 // import 'package:idfy_user_application/viewprofile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,11 +21,25 @@ class _MemberHomePageState extends State<MemberHomePage> {
   String memberName = "Member Name";
   String memberEmail = "member@example.com";
   bool isLoading = true;
+  String _id='';
   
   @override
   void initState() {
     super.initState();
+    _loadUserId();
     _loadUserData();
+  }
+  Future<void> _loadUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _id = prefs.getString('userId') ?? '';
+      print(_id);
+      if (_id == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('User ID not found')),
+        );
+      }
+    });
   }
   
   Future<void> _loadUserData() async {
@@ -155,12 +170,13 @@ class _MemberHomePageState extends State<MemberHomePage> {
                         _buildFeatureTile(Icons.person_outline, "View\nProfile", Colors.purple[700]!, () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => MemberProfilePage(memberId: '_id')),
+                            MaterialPageRoute(builder: (context) => MemberProfilePage(memberId: _id)),
                           );
                         }),
-                        _buildFeatureTile(Icons.analytics_outlined, "Analytics", Colors.orange[700]!, () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Analytics feature coming soon', style: GoogleFonts.poppins())),
+                         _buildFeatureTile(Icons.contact_mail_outlined, "Analytics", const Color.fromARGB(255, 146, 34, 68)!, () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => MemberAnalytics()),
                           );
                         }),
                       ],

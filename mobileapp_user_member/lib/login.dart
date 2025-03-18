@@ -51,6 +51,8 @@ class _LoginPageState extends State<LoginPage> {
             String userId = data['memberDetails']['_id'];
             await prefs.setString('role', role);
             await prefs.setString('userId', userId);
+            String wardNo = data['memberDetails']['ward'];
+            await prefs.setString('wardNo', wardNo);
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => MemberHomePage()),
