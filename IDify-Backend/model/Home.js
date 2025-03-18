@@ -41,7 +41,7 @@ const HomeSchema=Mongoose.Schema({
         type:String,
         required:true,
     },
-    wardno:{
+    wardNo:{
         type:Number,
         required:true,
     },

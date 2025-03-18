@@ -4,7 +4,7 @@ import 'package:idfy_user_application/memberProfileView.dart';
 import 'package:idfy_user_application/memberSupportchat.dart';
 import 'package:idfy_user_application/memberViewComplaints.dart';
 import 'package:idfy_user_application/memberSettings.dart';
-import 'package:idfy_user_application/viewprofile.dart';
+// import 'package:idfy_user_application/viewprofile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'login.dart';
@@ -155,7 +155,7 @@ class _MemberHomePageState extends State<MemberHomePage> {
                         _buildFeatureTile(Icons.person_outline, "View\nProfile", Colors.purple[700]!, () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => ViewProfile()),
+                            MaterialPageRoute(builder: (context) => MemberProfilePage(memberId: '_id')),
                           );
                         }),
                         _buildFeatureTile(Icons.analytics_outlined, "Analytics", Colors.orange[700]!, () {
@@ -497,7 +497,7 @@ class _MemberHomePageState extends State<MemberHomePage> {
               Navigator.pop(context);
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ViewProfile()),
+                MaterialPageRoute(builder: (context) => MemberProfilePage(memberId: '_id')),
               );
             },
           ),

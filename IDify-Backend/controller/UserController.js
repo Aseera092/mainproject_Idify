@@ -134,4 +134,54 @@ const deleteUser = async (req, res, next) => {
     }
 };
 
-module.exports = { addUser,getUser,getUserById,updateUser, deleteUser};
+// homeid
+
+
+// Approve User
+const approveUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const home = await Home.find({latitude:user.latitude,longitude:user.longitude})
+
+    if (!home) {
+        const homeId = `A${user.wardNo}${Math.floor((Math.random() * 10000) + 1)}`
+      const newHome = new Home({homeId, ...user})
+      await newHome.save();
+      const updateUser = await User.findByIdAndUpdate(userId,{homedetails:newHome._id,status:'Approved'})
+      return res.status(200).json({ message: 'new HomeSpotId Created and User approved',data:updateUser });
+    }else{
+        const updateUser = await User.findByIdAndUpdate(userId,{homedetails:home._id,status:'Approved'})
+         return res.status(200).json({ message: `User approved and Added to HomeSpotID : ${home.homeId}`,data:updateUser });
+    }
+  } catch (error) {
+    console.error('Error approving user:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// Reject User
+const rejectUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.status = 'rejected';
+    await user.save();
+    res.status(200).json({ message: 'User rejected' });
+  } catch (error) {
+    console.error('Error rejecting user:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+module.exports = { addUser,getUser,getUserById,updateUser, deleteUser,approveUser,rejectUser};

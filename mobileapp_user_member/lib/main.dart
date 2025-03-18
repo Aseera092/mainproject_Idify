@@ -4,6 +4,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:idfy_user_application/login.dart';
 import 'package:idfy_user_application/splashScreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:firebase_analytics/firebase_analytics.dart';
 import 'firebase_options.dart';
 // Your home/dashboard page
@@ -67,14 +68,21 @@ class MyApp extends StatelessWidget {
 
 void initNotification() async {
   try {
+    SharedPreferences pref = await SharedPreferences.getInstance();
     final messaging = FirebaseMessaging.instance;
     await messaging.subscribeToTopic("IDIFY-News");
+    final userId = pref.getString("userId");
+    // if (userId != null) {
+    //   await messaging.subscribeToTopic(userId);
+    // }
+
     await messaging.requestPermission();
     // final token = await messaging.getToken();
     // debugPrint('Token: $token');
     // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      debugPrint('Received message: ${message.notification?.title}');
+      debugPrint('Received message: ${message.notification}');
+      print(message.notification);
       if (message.notification != null) {
         FlutterLocalNotificationsPlugin plugin =
             FlutterLocalNotificationsPlugin();

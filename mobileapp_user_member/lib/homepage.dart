@@ -499,15 +499,15 @@ class _UserHomePageState extends State<UserHomePage> {
                           MaterialPageRoute(
                               builder: (context) => TrackComplaints())),
                     ),
-                    // _buildDrawerItem(
-                    //   context,
-                    //   icon: Icons.track_changes,
-                    //   title: "View Events",
-                    //   onTap: () => Navigator.push(
-                    //       context,
-                    //       MaterialPageRoute(
-                    //           builder: (context) => Event())),
-                    // ),
+                    _buildDrawerItem(
+                      context,
+                      icon: Icons.track_changes,
+                      title: "View Events",
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => EventListScreen())),
+                    ),
                     _buildDrawerItem(
                       context,
                       icon: Icons.info_outline,

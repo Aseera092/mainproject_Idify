@@ -64,9 +64,12 @@ const UserSchema=Mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['online', 'offline'],
-        default: 'online',
+        enum: ['Pending', 'Approved','Reject'],
+        default: 'Pending',
         required: true
+    },
+    rejectReason:{
+        type: String,
     },
     homedetails:{
         type:Mongoose.Schema.Types.ObjectId,

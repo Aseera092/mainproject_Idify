@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { deleteUser, getUsers, updateUser } from '../services/user';
+import { deleteUser, getUsers, updateUser, updateUserStatus } from '../services/user';
 import { toast } from 'react-toastify';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -17,6 +17,10 @@ const ViewAllUsers = () => {
         toast.error('Failed to fetch users');
       });
   };
+
+  const userStatusChange = (user, status)=>{
+    updateUserStatus(user._id,{status})
+  }
 
   useEffect(() => {
     init();
@@ -81,6 +85,8 @@ const ViewAllUsers = () => {
               <th>Email</th>
               <th>MobileNo</th>
               <th>Address</th>
+              <th>Ration No</th>
+              <th>Ration Card</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -92,24 +98,37 @@ const ViewAllUsers = () => {
                 <td>{user.email}</td>
                 <td>{user.MobileNo}</td>
                 <td>{user.Address}</td>
+                <td>{user.rationCardNo}</td>
+                <td><img src={`data:image/png;base64,${user.upload_rationcard}`} width="100px" /></td>
                 <td>
-                  <div className='d-flex justify-content-center'>
-                    <button
-                      className='btn btn-sm btn-outline-primary me-2'
-                      data-bs-toggle='modal'
-                      data-bs-target='#editmodal'
-                      onClick={() => setSelectedUser(user)}
-                    >
-                      <i className='bi bi-pencil-fill'></i>
-                    </button>
-                    <button
-                      className='btn btn-sm btn-outline-danger'
-                      onClick={() => deleteUserById(user._id)}
-                    >
-                      <i className='bi bi-trash3-fill'></i>
-                    </button>
-                  </div>
-                </td>
+  <div className="d-flex justify-content-center">
+    {/* Edit Button */}
+    <button
+      className="btn btn-sm btn-outline-primary me-2"
+      data-bs-toggle="modal"
+      data-bs-target="#editmodal"
+      onClick={() => setSelectedUser(user)}
+    >
+      <i className="bi bi-pencil-fill"></i>
+    </button>
+    
+    {/* Approve Button */}
+    <button
+      className="btn btn-sm btn-outline-success me-2"
+      onClick={() => approveUser(user)}
+    >
+      <i className="bi bi-check-lg"></i> Approve
+    </button>
+    
+    {/* Reject Button */}
+    <button
+      className="btn btn-sm btn-outline-warning"
+      onClick={() => rejectUser(user._id)}
+    >
+      <i className="bi bi-x-lg"></i> Reject
+    </button>
+  </div>
+</td>
               </tr>
             ))}
           </tbody>

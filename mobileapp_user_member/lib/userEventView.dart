@@ -1,312 +1,250 @@
-// import 'package:flutter/material.dart';
-// import 'package:intl/intl.dart';
-// import 'package:fluttertoast/fluttertoast.dart';
-// import 'dart:convert';
-// import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
+import 'service/api_service.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart'; // Add this package for date formatting
 
-// // Model class for Event
+class EventListScreen extends StatefulWidget {
+  const EventListScreen({super.key});
 
+  @override
+  State<EventListScreen> createState() => _EventListScreenState();
+}
 
-// class ViewEventPage extends StatefulWidget {
-//   const ViewEventPage({Key? key}) : super(key: key);
+class _EventListScreenState extends State<EventListScreen> {
+  late Future<List<Map<String, dynamic>>> _eventsFuture;
+  final _eventService = ApiService();
+  final _refreshKey = GlobalKey<RefreshIndicatorState>();
 
-//   @override
-//   _ViewEventPageState createState() => _ViewEventPageState();
-// }
+  @override
+  void initState() {
+    super.initState();
+    _loadEvents();
+  }
 
-// class _ViewEventPageState extends State<ViewEventPage> {
-//   final EventService _eventService = EventService();
-//   List<Event> _events = [];
-//   bool _isLoading = true;
-//   Event? _selectedEvent;
-  
-//   // Form controllers
-//   final TextEditingController _nameController = TextEditingController();
-//   final TextEditingController _timeController = TextEditingController();
-//   final TextEditingController _descriptionController = TextEditingController();
-//   final TextEditingController _locationController = TextEditingController();
-//   final TextEditingController _wardNoController = TextEditingController();
-//   DateTime? _selectedDate;
+  Future<void> _loadEvents() async {
+    setState(() {
+      _eventsFuture = _eventService.getEvents();
+    });
+  }
 
-//   @override
-//   void initState() {
-//     super.initState();
-//     _fetchEvents();
-//   }
+  String _formatDate(String? dateString) {
+    if (dateString == null) return 'Date not available';
+    try {
+      final date = DateTime.parse(dateString);
+      return DateFormat('EEEE, MMMM d, yyyy').format(date);
+    } catch (e) {
+      return dateString;
+    }
+  }
 
-//   @override
-//   void dispose() {
-//     _nameController.dispose();
-//     _timeController.dispose();
-//     _descriptionController.dispose();
-//     _locationController.dispose();
-//     _wardNoController.dispose();
-//     super.dispose();
-//   }
-
-//   Future<void> _fetchEvents() async {
-//     setState(() {
-//       _isLoading = true;
-//     });
-
-//     try {
-//       final events = await _eventService.getEvents();
-//       setState(() {
-//         _events = events;
-//       });
-//     } catch (e) {
-//       _showToast('Failed to fetch events: $e', isError: true);
-//     } finally {
-//       setState(() {
-//         _isLoading = false;
-//       });
-//     }
-//   }
-
-//   void _handleEdit(Event event) {
-//     setState(() {
-//       _selectedEvent = event;
-//       _nameController.text = event.nameOfEvent;
-//       _selectedDate = event.date;
-//       _timeController.text = event.time;
-//       _descriptionController.text = event.description;
-//       _locationController.text = event.location;
-//       _wardNoController.text = event.wardNoSelection;
-//     });
-    
-//     _showEditDialog();
-//   }
-
-//   Future<void> _handleUpdate() async {
-//     if (_selectedEvent == null) return;
-
-//     try {
-//       final updatedEvent = Event(
-//         id: _selectedEvent!.id,
-//         nameOfEvent: _nameController.text,
-//         date: _selectedDate,
-//         time: _timeController.text,
-//         description: _descriptionController.text,
-//         location: _locationController.text,
-//         wardNoSelection: _wardNoController.text,
-//       );
-
-//       final response = await _eventService.updateEvent(_selectedEvent!.id, updatedEvent);
-      
-//       _showToast(response['message'] ?? 'Event updated successfully!');
-//       await _fetchEvents();
-//       Navigator.of(context).pop(); // Close the dialog
-//     } catch (e) {
-//       _showToast('Failed to update event: $e', isError: true);
-//     }
-//   }
-
-//   Future<void> _handleDelete(String eventId) async {
-//     final confirmed = await showDialog<bool>(
-//       context: context,
-//       builder: (context) => AlertDialog(
-//         title: const Text('Confirm Delete'),
-//         content: const Text('Are you sure you want to delete this event?'),
-//         actions: [
-//           TextButton(
-//             onPressed: () => Navigator.of(context).pop(false),
-//             child: const Text('Cancel'),
-//           ),
-//           TextButton(
-//             onPressed: () => Navigator.of(context).pop(true),
-//             child: const Text('Delete'),
-//           ),
-//         ],
-//       ),
-//     );
-
-//     if (confirmed == true) {
-//       try {
-//         final response = await _eventService.deleteEvent(eventId);
-//         _showToast(response['message'] ?? 'Event deleted successfully!');
-//         await _fetchEvents();
-//       } catch (e) {
-//         _showToast('Failed to delete event: $e', isError: true);
-//       }
-//     }
-//   }
-
-//   void _showEditDialog() {
-//     showDialog(
-//       context: context,
-//       builder: (context) => AlertDialog(
-//         title: const Text('Edit Event'),
-//         content: SingleChildScrollView(
-//           child: Column(
-//             mainAxisSize: MainAxisSize.min,
-//             children: [
-//               TextField(
-//                 controller: _nameController,
-//                 decoration: const InputDecoration(labelText: 'Event Name'),
-//               ),
-//               const SizedBox(height: 12),
-//               InkWell(
-//                 onTap: () async {
-//                   final DateTime? picked = await showDatePicker(
-//                     context: context,
-//                     initialDate: _selectedDate ?? DateTime.now(),
-//                     firstDate: DateTime(2000),
-//                     lastDate: DateTime(2100),
-//                   );
-//                   if (picked != null) {
-//                     setState(() {
-//                       _selectedDate = picked;
-//                     });
-//                   }
-//                 },
-//                 child: InputDecorator(
-//                   decoration: const InputDecoration(labelText: 'Date'),
-//                   child: Text(
-//                     _selectedDate != null
-//                         ? DateFormat('yyyy-MM-dd').format(_selectedDate!)
-//                         : 'Select Date',
-//                   ),
-//                 ),
-//               ),
-//               const SizedBox(height: 12),
-//               TextField(
-//                 controller: _timeController,
-//                 decoration: const InputDecoration(labelText: 'Time'),
-//               ),
-//               const SizedBox(height: 12),
-//               TextField(
-//                 controller: _descriptionController,
-//                 decoration: const InputDecoration(labelText: 'Description'),
-//                 maxLines: 3,
-//               ),
-//               const SizedBox(height: 12),
-//               TextField(
-//                 controller: _locationController,
-//                 decoration: const InputDecoration(labelText: 'Location'),
-//               ),
-//               const SizedBox(height: 12),
-//               TextField(
-//                 controller: _wardNoController,
-//                 decoration: const InputDecoration(labelText: 'Ward No'),
-//                 keyboardType: TextInputType.number,
-//               ),
-//             ],
-//           ),
-//         ),
-//         actions: [
-//           TextButton(
-//             onPressed: () => Navigator.of(context).pop(),
-//             child: const Text('Cancel'),
-//           ),
-//           ElevatedButton(
-//             onPressed: _handleUpdate,
-//             child: const Text('Update Event'),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   void _showToast(String message, {bool isError = false}) {
-//     Fluttertoast.showToast(
-//       msg: message,
-//       toastLength: Toast.LENGTH_SHORT,
-//       gravity: ToastGravity.BOTTOM,
-//       backgroundColor: isError ? Colors.red : Colors.green,
-//       textColor: Colors.white,
-//     );
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('View Events'),
-//         centerTitle: true,
-//       ),
-//       body: Container(
-//         padding: const EdgeInsets.all(16.0),
-//         child: _isLoading
-//             ? const Center(child: CircularProgressIndicator())
-//             : _events.isEmpty
-//                 ? const Center(child: Text('No events available.'))
-//                 : GridView.builder(
-//                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-//                       crossAxisCount: 2,
-//                       crossAxisSpacing: 10,
-//                       mainAxisSpacing: 10,
-//                       childAspectRatio: 0.8,
-//                     ),
-//                     itemCount: _events.length,
-//                     itemBuilder: (context, index) {
-//                       final event = _events[index];
-//                       return Card(
-//                         elevation: 4,
-//                         shape: RoundedRectangleBorder(
-//                           borderRadius: BorderRadius.circular(10),
-//                         ),
-//                         child: Padding(
-//                           padding: const EdgeInsets.all(12.0),
-//                           child: Column(
-//                             crossAxisAlignment: CrossAxisAlignment.start,
-//                             children: [
-//                               Text(
-//                                 event.nameOfEvent,
-//                                 style: const TextStyle(
-//                                   fontSize: 18,
-//                                   fontWeight: FontWeight.bold,
-//                                   color: Colors.blue,
-//                                 ),
-//                                 textAlign: TextAlign.center,
-//                               ),
-//                               const SizedBox(height: 8),
-//                               Text(
-//                                 'Date: ${event.date != null ? DateFormat('yyyy-MM-dd').format(event.date!) : "N/A"}',
-//                                 style: const TextStyle(fontSize: 14),
-//                               ),
-//                               Text(
-//                                 'Time: ${event.time}',
-//                                 style: const TextStyle(fontSize: 14),
-//                               ),
-//                               Text(
-//                                 'Description: ${event.description}',
-//                                 style: const TextStyle(fontSize: 14),
-//                                 maxLines: 2,
-//                                 overflow: TextOverflow.ellipsis,
-//                               ),
-//                               Text(
-//                                 'Location: ${event.location}',
-//                                 style: const TextStyle(fontSize: 14),
-//                               ),
-//                               Text(
-//                                 'Ward No: ${event.wardNoSelection}',
-//                                 style: const TextStyle(fontSize: 14),
-//                               ),
-//                               const Spacer(),
-//                               ElevatedButton(
-//                                 onPressed: () => _handleEdit(event),
-//                                 style: ElevatedButton.styleFrom(
-//                                   backgroundColor: Colors.amber,
-//                                   minimumSize: const Size.fromHeight(36),
-//                                 ),
-//                                 child: const Text('Edit Event'),
-//                               ),
-//                               const SizedBox(height: 8),
-//                               ElevatedButton(
-//                                 onPressed: () => _handleDelete(event.id),
-//                                 style: ElevatedButton.styleFrom(
-//                                   backgroundColor: Colors.red,
-//                                   minimumSize: const Size.fromHeight(36),
-//                                 ),
-//                                 child: const Text('Delete Event'),
-//                               ),
-//                             ],
-//                           ),
-//                         ),
-//                       );
-//                     },
-//                   ),
-//       ),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Events'),
+        elevation: 0,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadEvents,
+          ),
+        ],
+      ),
+      body: RefreshIndicator(
+        key: _refreshKey,
+        onRefresh: _loadEvents,
+        child: FutureBuilder<List<Map<String, dynamic>>>(
+          future: _eventsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline, color: Colors.red, size: 60),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Error occurred',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${snapshot.error}',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: _loadEvents,
+                      child: const Text('Try Again'),
+                    ),
+                  ],
+                ),
+              );
+            } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+              final events = snapshot.data!;
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                itemCount: events.length,
+                itemBuilder: (context, index) {
+                  final event = events[index];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    elevation: 3,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: InkWell(
+                      onTap: () {
+                        // Navigate to event details page
+                        // Navigator.push(context, MaterialPageRoute(
+                        //   builder: (context) => EventDetailScreen(event: event),
+                        // ));
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Event image if available
+                          // if (event['upload_event'] != null && event['upload_event'].toString().isNotEmpty)
+                          //   ClipRRect(
+                          //     borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                          //     child: AspectRatio(
+                          //       aspectRatio: 16 / 9,
+                          //       child: Image.network(
+                          //         event['upload_event'],
+                          //         fit: BoxFit.cover,
+                          //         errorBuilder: (context, error, stackTrace) {
+                          //           return Container(
+                          //             color: Colors.grey.shade200,
+                          //             child: const Center(
+                          //               child: Icon(Icons.image_not_supported, size: 50, color: Colors.grey),
+                          //             ),
+                          //           );
+                          //         },
+                          //       ),
+                          //     ),
+                          //   ),
+                          
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Date chip
+                                if (event['Date'] != null)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.calendar_today,
+                                          size: 16,
+                                          color: Theme.of(context).colorScheme.secondary,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          _formatDate(event['Date']),
+                                          style: TextStyle(
+                                            color: Theme.of(context).colorScheme.secondary,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                
+                                const SizedBox(height: 12),
+                                
+                                // Event title
+                                Text(
+                                  event['NameofEvent'] ?? 'No Title',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                
+                                const SizedBox(height: 8),
+                                
+                                // Event description
+                                Text(
+                                  event['Description'] ?? 'No Description',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey.shade700,
+                                  ),
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                
+                                const SizedBox(height: 16),
+                                
+                                // Read more button
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: TextButton.icon(
+                                    onPressed: () {
+                                      // Navigate to details
+                                    },
+                                    icon: const Icon(Icons.arrow_forward),
+                                    label: const Text('Read more'),
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            } else {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.event_busy,
+                      size: 80,
+                      color: Colors.grey.shade400,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No Events Found',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Pull down to refresh',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+          },
+        ),
+      ),
+    );
+  }
+}

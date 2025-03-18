@@ -23,6 +23,15 @@ export const updateUser = async (id, data) => {
     return response.json();
 }
 
+export const updateUserStatus = async (id, data) => {
+    const response = await fetch(`${SERVICE_URL}user/status/${id}`, {
+        headers: { "Content-Type": "application/json" },
+        method: "PUT",
+        body: JSON.stringify(data)
+    });
+    return response.json();
+}
+
 export const deleteUser = async (id) => {
     const response = await fetch(`${SERVICE_URL}user/${id}`, {
         method: "DELETE"

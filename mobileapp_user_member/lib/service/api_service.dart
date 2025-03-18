@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = "http://192.168.1.35:8080"; // Change this
+  static const String baseUrl = "http://10.0.31.168:8080"; // Change this
   // static const String baseUrl = "http://localhost:8080";
 
 
@@ -51,6 +51,47 @@ class ApiService {
       }
     } else {
       throw Exception("Failed to load user: ${response.statusCode}");
+    }
+  } catch (e) {
+    throw Exception("Error: $e");
+  }
+}
+
+// getmemberprofile
+ Future<Map<String, dynamic>> getMemberById(String memberId) async {
+  try {
+    final response = await http.get(Uri.parse('$baseUrl/member/$memberId'));
+
+    if (response.statusCode == 200) {
+      final decodedResponse = json.decode(response.body);
+
+      if (decodedResponse['status'] == true) {
+        return decodedResponse['data'] as Map<String, dynamic>;
+      } else {
+        throw Exception(
+            'API returned status: false. Message: ${decodedResponse['message']}');
+      }
+    } else {
+      throw Exception('Failed to fetch member. Status code: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('Error fetching member: $e');
+    rethrow;
+  }
+  }
+  static Future<Map<String, dynamic>> getMember(String memberId) async {
+  final Uri url = Uri.parse("$baseUrl/member/$memberId");
+  try {
+    final response = await http.get(url, headers: {"Content-Type": "application/json",});
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      if (responseData['status'] == true ) {
+        return responseData['data']; // Return the first user in the list
+      } else {
+        throw Exception("Member not found or invalid response format");
+      }
+    } else {
+      throw Exception("Failed to load Member: ${response.statusCode}");
     }
   } catch (e) {
     throw Exception("Error: $e");
@@ -165,58 +206,12 @@ class ApiService {
 
 
   // Get complaints for a member with ward number filtering and user details in one call
-//  static Future<List<Map<String, dynamic>>> getComplaintsAndUserDetails(String wardNo) async {
-//     final Uri url = Uri.parse("$baseUrl/complaint/get-member/$wardNo"); // Combined endpoint
-//     try {
-//       final response = await http.get(
-//         url,
-//         headers: {"Content-Type": "application/json"},
-//       );
-
-//       if (response.statusCode == 200) {
-//         final responseData = jsonDecode(response.body);
-//         if (responseData['status'] == true) {
-//           return List<Map<String, dynamic>>.from(responseData['data']); // Return combined data
-//         } else {
-//           throw Exception("Failed to fetch complaints and user details: ${responseData['message']}");
-//         }
-//       } else {
-//         throw Exception("Error: ${response.statusCode}");
-//       }
-//     } catch (e) {
-//       throw Exception("Error: $e");
-//     }
-//   }
-static Future<List<Map<String, dynamic>>> getmemberComplaints(String wardNo) async {
-    final Uri url = Uri.parse("$baseUrl/complaint/get-member/$wardNo"); // Match the backend endpoint
+ static Future<List<Map<String, dynamic>>> getComplaintsAndUserDetails(String wardNo) async {
+    final Uri url = Uri.parse("$baseUrl/complaint/get-member/$wardNo"); // Combined endpoint
     try {
       final response = await http.get(
         url,
         headers: {"Content-Type": "application/json"},
-      );
-
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        if (responseData['status'] == true && responseData['data'] is List) {
-          return List<Map<String, dynamic>>.from(responseData['data']);
-        } else {
-          throw Exception("Failed to fetch complaints: ${responseData['message'] ?? 'Invalid response'}");
-        }
-      } else {
-        throw Exception("Error: ${response.statusCode}");
-      }
-    } catch (e) {
-      throw Exception("Error: $e");
-    }
-  }
-
-static Future<List<Map<String, dynamic>>> updateComplaintStatus(String id,Map<String, dynamic> data) async {
-    final Uri url = Uri.parse("$baseUrl/complaint/$id"); // Combined endpoint
-    try {
-      final response = await http.put(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(data),
       );
 
       if (response.statusCode == 200) {
@@ -233,9 +228,76 @@ static Future<List<Map<String, dynamic>>> updateComplaintStatus(String id,Map<St
       throw Exception("Error: $e");
     }
   }
-}
+// static Future<List<Map<String, dynamic>>> getmemberComplaints(String wardNo) async {
+//     final Uri url = Uri.parse("$baseUrl/complaint/get-member/$wardNo"); // Match the backend endpoint
+//     try {
+//       final response = await http.get(
+//         url,
+//         headers: {"Content-Type": "application/json"},
+//       );
+
+//       if (response.statusCode == 200) {
+//         final responseData = jsonDecode(response.body);
+//         if (responseData['status'] == true && responseData['data'] is List) {
+//           return List<Map<String, dynamic>>.from(responseData['data']);
+//         } else {
+//           throw Exception("Failed to fetch complaints: ${responseData['message'] ?? 'Invalid response'}");
+//         }
+//       } else {
+//         throw Exception("Error: ${response.statusCode}");
+//       }
+//     } catch (e) {
+//       throw Exception("Error: $e");
+//     }
+//   }
+
+static Future<http.Response> updateComplaintStatus(String id, Map<String, dynamic> data) async {
+    final Uri url = Uri.parse("$baseUrl/complaint/$id"); // Combined endpoint
+    try {
+      final response = await http.put(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(data),
+      );
+
+      if (response.statusCode == 200) {
+        return response;
+      } else {
+        throw Exception("Error: ${response.statusCode}");
+      }
+    } catch (e) {
+      throw Exception("Error: $e");
+    }
+  }
+
 
 // userEventView
+Future<List<Map<String, dynamic>>> getEvents() async {
+  final Uri url = Uri.parse("$baseUrl/event"); // Combined endpoint
+    try {
+      final response = await http.get(
+        url,
+        headers: {"Content-Type": "application/json"},
+      );
+
+      if (response.statusCode == 200) {
+        final decodedResponse = json.decode(response.body);
+        if (decodedResponse['status'] == true) {
+          List<dynamic> eventData = decodedResponse['data'];
+          return eventData.cast<Map<String, dynamic>>();
+        } else {
+          throw Exception('API returned status: false. Message: ${decodedResponse['message']}');
+        }
+      } else {
+        throw Exception('Failed to fetch events. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching events: $e');
+      rethrow; // Rethrow the exception to be handled in the UI
+    }
+  }
+}
+
 
 
 // // memberprofile
