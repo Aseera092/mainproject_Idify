@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:idfy_user_application/homepage.dart';
 import 'package:idfy_user_application/memberHome.dart';
 import 'package:idfy_user_application/register.dart';
+import 'package:idfy_user_application/welcomepage.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Import shared_preferences
 import 'service/api_service.dart';
 
@@ -43,6 +44,14 @@ class _LoginPageState extends State<LoginPage> {
             String userId = data['userDetails']['_id'];
             await prefs.setString('role', role);
             await prefs.setString('userId', userId);
+            String status = data['userDetails']['status'];
+            if (status.toLowerCase() == 'pending') {
+              Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => Welcome()),
+            );
+            }
+            
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => UserHomePage()),

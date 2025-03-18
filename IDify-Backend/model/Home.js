@@ -2,27 +2,7 @@
 const Mongoose=require("mongoose")
 const HomeSchema=Mongoose.Schema({
     
-    // users:{
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref:'user',
-    //     required: true
-    // },
-    // relation:{
-    //     type:String,
-    //     required:true,
-    // },
-    // number_of_members:{
-    //     type:Number,
-    //     required:true,
-    // },
-    // job:{
-        // type:String,
-        // required:true
-    // },
-    name:{
-        type:String,
-        required:true,
-    },
+   
     MobileNo:{
         type:Number,
         required:true,
@@ -37,12 +17,32 @@ const HomeSchema=Mongoose.Schema({
         type:String,
         required:true,
     },
-    Address:{
+    pincode:{
+        type:String,
+        required:true,
+    },
+    longitude:{
+        type:String,
+        required:true,
+    },
+    latitude:{
         type:String,
         required:true,
     },
     wardNo:{
-        type:Number,
+        type:String,
+        required:true,
+    },
+    district:{
+        type:String,
+        required:true,
+    },
+    country:{
+        type:String,
+        required:true,
+    },
+    rationCardNo:{
+        type:String,
         required:true,
     },
   

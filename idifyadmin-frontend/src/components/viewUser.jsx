@@ -19,7 +19,16 @@ const ViewAllUsers = () => {
   };
 
   const userStatusChange = (user, status)=>{
-    updateUserStatus(user._id,{status})
+    updateUserStatus(user._id,{status}).then((res)=>{
+      if(res.status){
+        toast.success(res.message)
+        init()
+      }
+    }).catch(err=>{
+      console.log(err.response);
+      
+      toast.error(err.response.data.message)
+    })
   }
 
   useEffect(() => {
@@ -111,22 +120,22 @@ const ViewAllUsers = () => {
     >
       <i className="bi bi-pencil-fill"></i>
     </button>
-    
-    {/* Approve Button */}
-    <button
-      className="btn btn-sm btn-outline-success me-2"
-      onClick={() => approveUser(user)}
-    >
-      <i className="bi bi-check-lg"></i> Approve
-    </button>
-    
-    {/* Reject Button */}
-    <button
-      className="btn btn-sm btn-outline-warning"
-      onClick={() => rejectUser(user._id)}
-    >
-      <i className="bi bi-x-lg"></i> Reject
-    </button>
+    {user.status == "Pending" &&
+
+    <><button
+                        className="btn btn-sm btn-outline-success me-2"
+                        onClick={() => userStatusChange(user, "Approved")}
+                      >
+                        <i className="bi bi-check-lg"></i> Approve
+                      </button><button
+                        className="btn btn-sm btn-outline-warning"
+                        onClick={() => userStatusChange(user, "Reject")}
+                      >
+                          <i className="bi bi-x-lg"></i> Reject
+                        </button>
+                        </>
+
+}
   </div>
 </td>
               </tr>

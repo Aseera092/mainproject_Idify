@@ -1,7 +1,7 @@
 import { SERVICE_URL } from "./service";
 
 export const addHomespotid = async (data) => {
-    const response = await fetch(`${SERVICE_URL}homespotid`, {
+    const response = await fetch(`${SERVICE_URL}home`, {
         headers: { "Content-Type": "application/json" },
         method: "POST",
         body: JSON.stringify(data)
@@ -10,12 +10,12 @@ export const addHomespotid = async (data) => {
 };
 
 export const getHomespotid = async () => {
-    const response = await fetch(`${SERVICE_URL}homespotid`);
+    const response = await fetch(`${SERVICE_URL}home`);
     return response.json();
 };
 
 export const updateHomespotid = async (id, data) => {
-    const response = await fetch(`${SERVICE_URL}homespotid/${id}`, {
+    const response = await fetch(`${SERVICE_URL}home/${id}`, {
         headers: { "Content-Type": "application/json" },
         method: "PUT",
         body: JSON.stringify(data)

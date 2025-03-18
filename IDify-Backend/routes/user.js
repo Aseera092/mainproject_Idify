@@ -14,7 +14,7 @@ router.route('/:id')
     .put(updateUser)
     .delete(deleteUser)
 
-router.put('status/:id', approveUser); // Approve user
+router.put('/status/:id', approveUser); // Approve user
 // router.put('/:id/reject', rejectUser); // Reject user
 
 // router.post('/login', homeLogin);

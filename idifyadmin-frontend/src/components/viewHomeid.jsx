@@ -53,8 +53,7 @@ const ViewHomeSpotId = () => {
           <th>Sl.No</th>
             <th>HomeId</th>
             <th>Location</th>
-            <th>No of Members</th>
-            <th>Address</th>
+            <th>Pin Code</th>
             <th>Ward</th>
            
           </tr>
@@ -63,8 +62,9 @@ const ViewHomeSpotId = () => {
           {homespotids.map((spot, index) => (
             <tr key={spot._id}>
               <td>{index + 1}</td>
-              <td>{spot.name}</td>
-              <td>{spot.location}</td>
+              <td>{spot.homeId}</td>
+              <td>latitude: {spot.latitude}<br/>longitude: {spot.longitude}</td>
+              <td> {spot.pincode}</td>
               <td>
                 <button onClick={() => setSelectedSpot(spot)} data-bs-toggle='modal' data-bs-target='#editModal'>Edit</button>
                 <button onClick={() => deleteSpotById(spot._id)}>Delete</button>
