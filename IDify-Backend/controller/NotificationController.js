@@ -20,7 +20,7 @@ const addNotification = async (req, res, next) => {
         title,
         body,
       },
-      topic: wardNo,
+      topic: `ward_${wardNo}`,
     };
   } else {
     message = {
@@ -54,7 +54,7 @@ const addNotification = async (req, res, next) => {
 
 const getNotifications = async (req, res, next) => {
   try {
-    const notifications = await NotificationModel.find();
+    const notifications = await NotificationModel.find().sort({ createdAt: -1 });;
 
     res.status(200).json({
       status: true,

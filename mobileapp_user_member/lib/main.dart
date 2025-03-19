@@ -73,17 +73,20 @@ void initNotification() async {
 
     // Subscribe to common topic for all users
     await messaging.subscribeToTopic("global");
+    debugPrint("✅ Subscribed to: global");
 
     // Get user ID and ward ID from shared preferences
-    final userId = pref.getString("userId");
+    final homeId = pref.getString("homeId");
     final wardId = pref.getString("wardNo");
 
-    if (userId != null) {
-      await messaging.subscribeToTopic(userId); // User-specific notifications
+    if (homeId != null) {
+      await messaging.subscribeToTopic(homeId); // User-specific notifications
+      debugPrint("✅ Subscribed to: $homeId");
     }
-
+    print(wardId);
     if (wardId != null) {
       await messaging.subscribeToTopic("ward_$wardId"); // Ward-based notifications
+      debugPrint("✅ Subscribed to: ward_$wardId");
     }
 
     // Request permission for notifications

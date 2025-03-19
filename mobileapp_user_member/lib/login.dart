@@ -47,6 +47,9 @@ class _LoginPageState extends State<LoginPage> {
             String homeId = data['userDetails']['homedetails']['homeId'];
             print('homeId:${homeId}');
             await prefs.setString('homeId', homeId);
+            String wardNo = data['userDetails']['wardNo'];
+            print('wardNo:${wardNo}');
+            await prefs.setString('wardNo', wardNo);
             String status = data['userDetails']['status'];
             print(status);
             if (status == 'Pending' || status == 'Reject') {
