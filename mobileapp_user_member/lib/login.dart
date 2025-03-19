@@ -45,6 +45,7 @@ class _LoginPageState extends State<LoginPage> {
             await prefs.setString('role', role);
             await prefs.setString('userId', userId);
             String homeId = data['userDetails']['homedetails']['homeId'];
+            print('homeId:${homeId}');
             await prefs.setString('homeId', homeId);
             String status = data['userDetails']['status'];
             print(status);

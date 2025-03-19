@@ -345,7 +345,7 @@ class _NotificationBodyState extends State<NotificationBody> with SingleTickerPr
           id: random,
           title: item['title'] ?? 'Notification',
           message: item['body'] ?? 'No message content',
-          time: DateTime.parse(item['timestamp'] ?? DateTime.now().toIso8601String()),
+          time: DateTime.parse(item['createdAt'] ?? DateTime.now().toIso8601String()),
           isRead: false,
           priority: priority,
           icon: icon,

@@ -70,10 +70,12 @@ const getNotifications = async (req, res, next) => {
 };
 
 const getNotificationsbyHome = async (req, res, next) => {
-  const homeId = req.param.homeId;
+  const homeId = req.params.homeId;
 
   try {
-    const home = HomeModel.findOne({ homeId });
+    const home = await HomeModel.findOne({ homeId });
+    console.log(home);
+    
     const notifications = await NotificationModel.find({
       $or: [
       { homeId: homeId },

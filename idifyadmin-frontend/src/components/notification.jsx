@@ -50,7 +50,7 @@ const NotificationPage = () => {
       toast.error(error.response.data.message);
     })
 
-    setNotification({ title: '', body: '', Date: '' });
+    setNotification({ title: '', body: '', Date: '',homeId:'',wardNo:'' });
   };
 
 
