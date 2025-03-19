@@ -55,7 +55,7 @@ const addUser = async (req, res, next) => {
 };
 const getUser = async (req, res, next) => {
   try {
-    const user = await User.find();
+    const user = await User.find().populate('homedetails');
     res.status(200).json({
       status: true,
       data: user,
@@ -144,6 +144,7 @@ const approveUser = async (req, res) => {
     const userId = req.params.id;
     const user = await User.findById(userId);
 
+    
     if (!user) {
       return res.status(400).json({
         status: false,
@@ -158,6 +159,14 @@ const approveUser = async (req, res) => {
       });
     }
 
+    if (req.body.status == "Reject") {
+      const updateUser = await User.findByIdAndUpdate(userId, req.body)
+      return res.status(200).json({
+        status: true,
+        message: "User Rejected Successfully",
+        data: updateUser,
+      });
+    }
     
 
     const home = await HomeModel.findOne({

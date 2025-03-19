@@ -28,7 +28,17 @@ const NotificationPage = () => {
 
   const addNotification = () => {
     if (!notification.title || !notification.body || !notification.Date) {
-      toast.error("Please fill all Fields")
+      toast.error("Please fill all required fields");
+      return;
+    }
+
+    if (!notification.homeId && !notification.wardNo) {
+      toast.error("Please provide either Home ID or Ward Number");
+      return;
+    }
+
+    if (notification.homeId && notification.wardNo) {
+      toast.error("Please provide only Home ID or Ward Number, not both");
       return;
     }
     addNotificationAPI(notification).then((res)=>{
@@ -72,7 +82,30 @@ const NotificationPage = () => {
             onChange={inputHandler}
             className="form-control mb-2"
           />
-        
+        <hr />
+        <input
+            type="text"
+            name="homeId"
+            value={notification.homeId}
+            onChange={inputHandler}
+            placeholder="Home ID"
+            className="form-control mb-2"
+          />
+          or<br/> <br/>
+          <select
+            className="form-select mb-2"
+            name="wardNo"
+            value={notification.wardNo}
+            onChange={inputHandler}
+          >
+            <option value="">Select Ward</option>
+            {
+              [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map((wardNo)=>(
+                <option key={wardNo} value={wardNo}>{wardNo}</option>
+              )) 
+            }
+          </select>
+
           <button className="btn btn-success" onClick={addNotification}>
             Add Notification
           </button>
@@ -92,6 +125,8 @@ const NotificationPage = () => {
           <div key={notif.id} className="alert alert-info">
             <h5>{notif.title}</h5>
             <p>{notif.body}</p>
+            {notif.wardNo && <p>WardNo: {notif.wardNo}</p>}
+            {notif.homeId && <p>Home ID: {notif.homeId}</p>}
             <small>Date: {notif.Date}</small>
             {/* {isAdmin && (
               <div>

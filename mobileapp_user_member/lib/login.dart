@@ -44,18 +44,21 @@ class _LoginPageState extends State<LoginPage> {
             String userId = data['userDetails']['_id'];
             await prefs.setString('role', role);
             await prefs.setString('userId', userId);
+            String homeId = data['userDetails']['homedetails']['homeId'];
+            await prefs.setString('homeId', homeId);
             String status = data['userDetails']['status'];
-            if (status.toLowerCase() == 'pending') {
+            print(status);
+            if (status == 'Pending' || status == 'Reject') {
               Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => Welcome()),
-            );
+                context,
+                MaterialPageRoute(builder: (context) => Welcome()),
+              );
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => UserHomePage()),
+              );
             }
-            
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => UserHomePage()),
-            );
           } else if (role == 'member') {
             String userId = data['memberDetails']['_id'];
             await prefs.setString('role', role);
@@ -66,17 +69,16 @@ class _LoginPageState extends State<LoginPage> {
               context,
               MaterialPageRoute(builder: (context) => MemberHomePage()),
             );
-          } 
-          else{
+          } else {
             ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Invalid email or password")),
-          );
+              const SnackBar(content: Text("Invalid email or password")),
+            );
           }
           // else if (role == 'admin') {
           //   ScaffoldMessenger.of(context).showSnackBar(
           //     const SnackBar(content: Text("Admin login not allowed here")),
           //   );
-          // } 
+          // }
           // else if (role == 'panchayath') {
           //   ScaffoldMessenger.of(context).showSnackBar(
           //     const SnackBar(content: Text("Panchayath login not allowed here")),

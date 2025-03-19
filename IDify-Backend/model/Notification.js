@@ -1,3 +1,4 @@
+const { Timestamp } = require("firebase-admin/firestore");
 const Mongoose = require("mongoose");
 const Notificationschema = Mongoose.Schema({
 //   Time: {
@@ -16,11 +17,13 @@ const Notificationschema = Mongoose.Schema({
     type: String,
     required: true,
   },
-//   Homeid: {
-//     type: Number,
-//     required: true,
-//   },
-});
+  homeId: {
+    type: String,
+  },
+  wardNo: {
+    type: String,
+  },
+}, { timestamps: true});
 
 var NotificationModel = Mongoose.model("notification", Notificationschema);
 module.exports = NotificationModel;

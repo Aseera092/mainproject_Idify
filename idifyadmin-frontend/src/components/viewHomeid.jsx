@@ -65,10 +65,11 @@ const ViewHomeSpotId = () => {
               <td>{spot.homeId}</td>
               <td>latitude: {spot.latitude}<br/>longitude: {spot.longitude}</td>
               <td> {spot.pincode}</td>
-              <td>
+              <td> {spot.wardNo}</td>
+              {/* <td>
                 <button onClick={() => setSelectedSpot(spot)} data-bs-toggle='modal' data-bs-target='#editModal'>Edit</button>
                 <button onClick={() => deleteSpotById(spot._id)}>Delete</button>
-              </td>
+              </td> */}
             </tr>
           ))}
         </tbody>

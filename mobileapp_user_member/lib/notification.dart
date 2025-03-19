@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'service/api_service.dart';
 
 // Make sure to use this class name when navigating from homepage.dart
 class NotificationPage extends StatelessWidget {
@@ -213,46 +216,46 @@ void showNotificationDetails(BuildContext context, int notificationNumber, Strin
                     ),
                   ),
                   const SizedBox(height: 20),
-                  if (notificationNumber % 2 == 0) // Just for example, show image for even numbers
-                    Container(
-                      height: 200,
-                      width: double.infinity,
-                      margin: const EdgeInsets.only(bottom: 20),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        Icons.image,
-                        size: 50,
-                        color: Colors.grey.shade400,
-                      ),
-                    ),
+                  // if (notificationNumber % 2 == 0) // Just for example, show image for even numbers
+                  //   Container(
+                  //     height: 200,
+                  //     width: double.infinity,
+                  //     margin: const EdgeInsets.only(bottom: 20),
+                  //     decoration: BoxDecoration(
+                  //       color: Colors.grey.shade200,
+                  //       borderRadius: BorderRadius.circular(12),
+                  //     ),
+                  //     child: Icon(
+                  //       Icons.image,
+                  //       size: 50,
+                  //       color: Colors.grey.shade400,
+                  //     ),
+                  //   ),
                   const Divider(),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      buildActionButton(
-                        context,
-                        Icons.reply,
-                        'Reply',
-                        Colors.blue.shade700,
-                      ),
-                      buildActionButton(
-                        context, 
-                        Icons.delete,
-                        'Delete',
-                        Colors.red.shade700,
-                      ),
-                      buildActionButton(
-                        context,
-                        Icons.archive,
-                        'Archive',
-                        Colors.amber.shade700,
-                      ),
-                    ],
-                  ),
+                  // const SizedBox(height: 10),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  //   children: [
+                  //     buildActionButton(
+                  //       context,
+                  //       Icons.reply,
+                  //       'Reply',
+                  //       Colors.blue.shade700,
+                  //     ),
+                  //     buildActionButton(
+                  //       context, 
+                  //       Icons.delete,
+                  //       'Delete',
+                  //       Colors.red.shade700,
+                  //     ),
+                  //     buildActionButton(
+                  //       context,
+                  //       Icons.archive,
+                  //       'Archive',
+                  //       Colors.amber.shade700,
+                  //     ),
+                  //   ],
+                  // ),
                 ],
               ),
             ),
@@ -298,38 +301,7 @@ class NotificationBody extends StatefulWidget {
 
 class _NotificationBodyState extends State<NotificationBody> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  final List<NotificationItem> _notifications = [
-    NotificationItem(
-      id: 1,
-      title: "New Feature Available",
-      message: "We've added exciting new features to enhance your experience. Tap to explore what's new in our latest update.",
-      time: DateTime.now().subtract(const Duration(minutes: 15)),
-      isRead: false,
-      priority: NotificationPriority.high,
-      icon: Icons.star,
-      color: Colors.amber,
-    ),
-    NotificationItem(
-      id: 2,
-      title: "Account Security",
-      message: "We noticed a login from a new device. Please verify if this was you to keep your account secure.",
-      time: DateTime.now().subtract(const Duration(hours: 2)),
-      isRead: true,
-      priority: NotificationPriority.medium,
-      icon: Icons.security,
-      color: Colors.red,
-    ),
-    NotificationItem(
-      id: 4,
-      title: "Weekly Summary",
-      message: "Your weekly activity summary is ready. Check out your progress and achievements.",
-      time: DateTime.now().subtract(const Duration(days: 1)),
-      isRead: true,
-      priority: NotificationPriority.low,
-      icon: Icons.bar_chart,
-      color: Colors.blue,
-    ),
-  ];
+  List<NotificationItem> _notifications = [];
 
   @override
   void initState() {
@@ -339,12 +311,50 @@ class _NotificationBodyState extends State<NotificationBody> with SingleTickerPr
       duration: const Duration(milliseconds: 300),
     );
     _animationController.forward();
+    getNotification();
   }
 
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
+  }
+
+  void getNotification() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    final response = await ApiService.getNotificationbyHome(pref.getString("homeId") ?? '');
+    
+    // List of possible icons and colors to randomly choose from
+    final icons = [
+      Icons.star, Icons.notification_important, Icons.info, 
+      Icons.warning, Icons.event, Icons.message, Icons.update
+    ];
+    final colors = [
+      Colors.amber, Colors.blue, Colors.red, Colors.green, 
+      Colors.purple, Colors.orange, Colors.teal
+    ];
+
+      _notifications = response.map<NotificationItem>((item) {
+        // Random selection of priority, icon, and color
+        final random = DateTime.now().millisecondsSinceEpoch;
+        final priority = NotificationPriority.values[random % 3];
+        final icon = icons[random % icons.length];
+        final color = colors[random % colors.length];
+
+        return NotificationItem(
+          id: random,
+          title: item['title'] ?? 'Notification',
+          message: item['body'] ?? 'No message content',
+          time: DateTime.parse(item['timestamp'] ?? DateTime.now().toIso8601String()),
+          isRead: false,
+          priority: priority,
+          icon: icon,
+          color: color,
+        );
+      }).toList();
+      setState(() {
+        _notifications = _notifications;
+      });
   }
 
   @override

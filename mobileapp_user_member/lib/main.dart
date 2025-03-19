@@ -70,19 +70,29 @@ void initNotification() async {
   try {
     SharedPreferences pref = await SharedPreferences.getInstance();
     final messaging = FirebaseMessaging.instance;
-    await messaging.subscribeToTopic("IDIFY-News");
-    final userId = pref.getString("userId");
-    // if (userId != null) {
-    //   await messaging.subscribeToTopic(userId);
-    // }
 
+    // Subscribe to common topic for all users
+    await messaging.subscribeToTopic("global");
+
+    // Get user ID and ward ID from shared preferences
+    final userId = pref.getString("userId");
+    final wardId = pref.getString("wardNo");
+
+    if (userId != null) {
+      await messaging.subscribeToTopic(userId); // User-specific notifications
+    }
+
+    if (wardId != null) {
+      await messaging.subscribeToTopic("ward_$wardId"); // Ward-based notifications
+    }
+
+    // Request permission for notifications
     await messaging.requestPermission();
-    // final token = await messaging.getToken();
-    // debugPrint('Token: $token');
-    // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+    // Handle foreground notifications
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       debugPrint('Received message: ${message.notification}');
-      print(message.notification);
+      
       if (message.notification != null) {
         FlutterLocalNotificationsPlugin plugin =
             FlutterLocalNotificationsPlugin();
@@ -92,6 +102,7 @@ void initNotification() async {
             iOS: DarwinInitializationSettings(),
           ),
         );
+
         await plugin.show(
           123456,
           message.notification?.title,
@@ -107,7 +118,9 @@ void initNotification() async {
         );
       }
     });
+
   } catch (e) {
-    print(e);
+    print("Error initializing notification: $e");
   }
 }
+

@@ -18,16 +18,15 @@ const ViewAllUsers = () => {
       });
   };
 
-  const userStatusChange = (user, status)=>{
-    updateUserStatus(user._id,{status}).then((res)=>{
+  const userStatusChange = (user, status,reason="")=>{
+    updateUserStatus(user._id,{status,rejectReason:reason}).then((res)=>{
       if(res.status){
         toast.success(res.message)
         init()
       }
     }).catch(err=>{
-      console.log(err.response);
-      
-      toast.error(err.response.data.message)
+      console.log(err);
+      toast.error(err.message)
     })
   }
 
@@ -96,6 +95,8 @@ const ViewAllUsers = () => {
               <th>Address</th>
               <th>Ration No</th>
               <th>Ration Card</th>
+              <th>Homespot ID</th>
+              <th>Status</th>
               <th>Action</th>
             </tr>
           </thead>
@@ -109,149 +110,127 @@ const ViewAllUsers = () => {
                 <td>{user.Address}</td>
                 <td>{user.rationCardNo}</td>
                 <td><img src={`data:image/png;base64,${user.upload_rationcard}`} width="100px" /></td>
+                <td>{user.homedetails ? user.homedetails.homeId : "Not Approved"}</td>
                 <td>
-  <div className="d-flex justify-content-center">
-    {/* Edit Button */}
-    <button
-      className="btn btn-sm btn-outline-primary me-2"
-      data-bs-toggle="modal"
-      data-bs-target="#editmodal"
-      onClick={() => setSelectedUser(user)}
-    >
-      <i className="bi bi-pencil-fill"></i>
-    </button>
-    {user.status == "Pending" &&
-
-    <><button
-                        className="btn btn-sm btn-outline-success me-2"
-                        onClick={() => userStatusChange(user, "Approved")}
-                      >
-                        <i className="bi bi-check-lg"></i> Approve
-                      </button><button
-                        className="btn btn-sm btn-outline-warning"
-                        onClick={() => userStatusChange(user, "Reject")}
-                      >
+                  <span className={`badge ${
+                    user.status === 'Approved' ? 'bg-success' :
+                    user.status === 'Pending' ? 'bg-warning' :
+                    user.status === 'Reject' ? 'bg-danger' : 'bg-secondary'
+                  }`}>
+                    {user.status}
+                  </span>
+                  {user.rejectReason && user.status === 'Reject' && <p className="small text-danger mb-0">Reason: {user.rejectReason}</p>}
+                </td>
+                <td>
+                  <div className="d-flex justify-content-center">
+                    <button
+                      className="btn btn-sm btn-outline-primary me-2"
+                      data-bs-toggle="modal"
+                      data-bs-target="#editmodal"
+                      onClick={() => setSelectedUser(user)}
+                    >
+                      <i className="bi bi-pencil-fill"></i>
+                    </button>
+                    {(user.status === "Pending" || user.status === "Reject") && (
+                      <>
+                        <button
+                          className="btn btn-sm btn-outline-success me-2"
+                          onClick={() => userStatusChange(user, "Approved")}
+                        >
+                          <i className="bi bi-check-lg"></i> Approve
+                        </button>
+                        <button
+                          className="btn btn-sm btn-outline-warning"
+                          data-bs-toggle="modal"
+                          data-bs-target="#rejectModal"
+                          onClick={() => setSelectedUser(user)}
+                        >
                           <i className="bi bi-x-lg"></i> Reject
                         </button>
-                        </>
-
-}
-  </div>
-</td>
+                      </>
+                    )}
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        <div className='modal fade' id='editmodal' tabIndex='-1' aria-hidden='true'>
+        <div className='modal fade' id='rejectModal' tabIndex='-1'>
           <div className='modal-dialog'>
             <div className='modal-content'>
-              <form onSubmit={submitAction}>
-                <div className='modal-header'>
-                  <h5 className='modal-title'>Edit User</h5>
-                  <button
-                    type='button'
-                    id='modal-close'
-                    className='btn-close'
-                    data-bs-dismiss='modal'
-                    aria-label='Close'
-                  ></button>
-                </div>
-                <div className='modal-body'>
+              <div className='modal-header'>
+                <h5 className='modal-title'>Reject User</h5>
+                <button type='button' className='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+              </div>
+              <div className='modal-body'>
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  const reason = e.target.rejectReason.value;
+                  userStatusChange(selectedUser, "Reject", reason);
+                  e.target.reset();
+                  document.querySelector('#rejectModal .btn-close').click();
+                }}>
                   <div className='mb-3'>
-                    <label htmlFor='firstName' className='form-label'>
-                      firstName
-                    </label>
-                    <input
-                      type='text'
-                      className='form-control'
-                      id='firstName'
-                      defaultValue={selectedUser?.firstName}
-                    />
+                    <label htmlFor='rejectReason' className='form-label'>Reason for Rejection</label>
+                    <textarea 
+                      className='form-control' 
+                      id='rejectReason' 
+                      name='rejectReason' 
+                      required
+                    ></textarea>
                   </div>
-                  <div className='mb-3'>
-                    <label htmlFor='lastName' className='form-label'>
-                      lastName
-                    </label>
-                    <input
-                      type='text'
-                      className='form-control'
-                      id='lastName'
-                      defaultValue={selectedUser?.lastName}
-                    />
-                  </div>
-                  <div className='mb-3'>
-                    <label htmlFor='email' className='form-label'>
-                      Email
-                    </label>
-                    <input
-                      type='email'
-                      className='form-control'
-                      id='email'
-                      defaultValue={selectedUser?.email}
-                    />
-                  </div>
-                  <div className='mb-3'>
-                    <label htmlFor='MobileNo' className='form-label'>
-                      MobileNo
-                    </label>
-                    <input
-                      type='text'
-                      className='form-control'
-                      id='MobileNo'
-                      defaultValue={selectedUser?.MobileNo}
-                    />
-                  </div>
-                  <div className='mb-3'>
-                    <label htmlFor='Address' className='form-label'>
-                      Address
-                    </label>
-                    <input
-                      type='text'
-                      className='form-control'
-                      id='Address'
-                      defaultValue={selectedUser?.Address}
-                    />
-                  </div>
-                  <div className='mb-3'>
-                    <label htmlFor='dob' className='form-label'>
-                      dob
-                    </label>
-                    <input
-                      type='date'
-                      className='form-control'
-                      id='dob'
-                      defaultValue={selectedUser?.dob}
-                    />
-                  </div>
-                  <div className='mb-3'>
-                    <label htmlFor='alternateMobileNo' className='form-label'>
-                      alternateMobileNo
-                    </label>
-                    <input
-                      type='text'
-                      className='form-control'
-                      id='alternateMobileNo'
-                      defaultValue={selectedUser?.alternateMobileNo}
-                    />
-                  </div>
-                </div>
-                <div className='modal-footer'>
-                  <button
-                    type='button'
-                    className='btn btn-secondary'
-                    data-bs-dismiss='modal'
-                  >
-                    Close
-                  </button>
-                  <button type='submit' className='btn btn-primary'>
-                    Save changes
-                  </button>
-                </div>
-              </form>
+                  <button type='submit' className='btn btn-danger'>Submit</button>
+                </form>
+              </div>
             </div>
           </div>
         </div>
+
+        <div className='modal fade' id='editmodal' tabIndex='-1'>
+          <div className='modal-dialog'>
+            <div className='modal-content'>
+              <div className='modal-header'>
+                <h5 className='modal-title'>Edit User</h5>
+                <button type='button' className='btn-close' data-bs-dismiss='modal' aria-label='Close' id='modal-close'></button>
+              </div>
+              <div className='modal-body'>
+                <form onSubmit={submitAction}>
+                  <div className='mb-3'>
+                    <label htmlFor='firstName' className='form-label'>First Name</label>
+                    <input type='text' className='form-control' id='firstName' defaultValue={selectedUser?.firstName} />
+                  </div>
+                  <div className='mb-3'>
+                    <label htmlFor='lastName' className='form-label'>Last Name</label>
+                    <input type='text' className='form-control' id='lastName' defaultValue={selectedUser?.lastName} />
+                  </div>
+                  <div className='mb-3'>
+                    <label htmlFor='email' className='form-label'>Email</label>
+                    <input type='email' className='form-control' id='email' defaultValue={selectedUser?.email} />
+                  </div>
+                  <div className='mb-3'>
+                    <label htmlFor='MobileNo' className='form-label'>Mobile Number</label>
+                    <input type='text' className='form-control' id='MobileNo' defaultValue={selectedUser?.MobileNo} />
+                  </div>
+                  <div className='mb-3'>
+                    <label htmlFor='Address' className='form-label'>Address</label>
+                    <textarea className='form-control' id='Address' defaultValue={selectedUser?.Address}></textarea>
+                  </div>
+                  <div className='mb-3'>
+                    <label htmlFor='dob' className='form-label'>Date of Birth</label>
+                    <input type='date' className='form-control' id='dob' defaultValue={selectedUser?.dob?.split('T')[0]} />
+                  </div>
+                  <div className='mb-3'>
+                    <label htmlFor='alternateMobileNo' className='form-label'>Alternate Mobile Number</label>
+                    <input type='text' className='form-control' id='alternateMobileNo' defaultValue={selectedUser?.alternateMobileNo} />
+                  </div>
+                  <button type='submit' className='btn btn-primary'>Update</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );

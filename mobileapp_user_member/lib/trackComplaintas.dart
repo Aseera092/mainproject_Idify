@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:idfy_user_application/service/api_service.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart'; 
 
@@ -28,7 +29,7 @@ Future<List<Map<String, dynamic>>> _fetchComplaints() async {
    
   }
   
-  final url = Uri.parse('http://192.168.1.35:8080/complaint/${userId}');
+  final url = Uri.parse('${ApiService.baseUrl}/complaint/${userId}');
   // final url = Uri.parse('http://localhost:8080/complaint/${userId}');
 
   try {
@@ -52,7 +53,7 @@ Future<List<Map<String, dynamic>>> _fetchComplaints() async {
 }
   void _deleteComplaint(String complaintId) async {
     // Implement API call to delete complaint by ID
-     final url = Uri.parse('http://192.168.1.35:8080/complaint/$complaintId');
+     final url = Uri.parse('${ApiService.baseUrl}/complaint/$complaintId');
     //  final url = Uri.parse('http://localhost:8080/complaint/$complaintId');    
 
     try {

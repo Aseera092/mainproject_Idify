@@ -1,16 +1,36 @@
+const HomeModel = require("../model/Home");
 const NotificationModel = require("../model/Notification");
 const { firebaseAdmin } = require("../util/firebase");
 
 const addNotification = async (req, res, next) => {
-  const { title, body, deviceID } = req.body;
-  const message = {
-    notification: {
-      title,
-      body,
-    },
-    topic: "IDIFY-News",
-    // token: deviceID,
-  };
+  const { title, body, homeId, wardNo } = req.body;
+  let message = {};
+
+  if (homeId) {
+    message = {
+      notification: {
+        title,
+        body,
+      },
+      topic: homeId,
+    };
+  } else if (wardNo) {
+    message = {
+      notification: {
+        title,
+        body,
+      },
+      topic: wardNo,
+    };
+  } else {
+    message = {
+      notification: {
+        title,
+        body,
+      },
+      topic: "global",
+    };
+  }
 
   try {
     await firebaseAdmin.messaging().send(message);
@@ -35,11 +55,11 @@ const addNotification = async (req, res, next) => {
 const getNotifications = async (req, res, next) => {
   try {
     const notifications = await NotificationModel.find();
-    
+
     res.status(200).json({
-        status: true,
-        data: notifications,
-      });
+      status: true,
+      data: notifications,
+    });
   } catch (error) {
     res.status(500).json({
       status: false,
@@ -49,4 +69,30 @@ const getNotifications = async (req, res, next) => {
   }
 };
 
-module.exports = { addNotification, getNotifications };
+const getNotificationsbyHome = async (req, res, next) => {
+  const homeId = req.param.homeId;
+
+  try {
+    const home = HomeModel.findOne({ homeId });
+    const notifications = await NotificationModel.find({
+      $or: [
+      { homeId: homeId },
+      { homeId: { $exists: false } },
+      { wardNo: home.wardNo },
+      ],
+    }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      status: true,
+      data: notifications,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      message: error.message,
+      error: "Error notification senting",
+    });
+  }
+};
+
+module.exports = { addNotification, getNotifications,getNotificationsbyHome };

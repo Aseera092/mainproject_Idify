@@ -1,6 +1,6 @@
 var express = require('express');
 
-const { getHomeID, addHomeID, updateHomeID, deleteHomeID,homeLogin} = require('../controller/HomeController');
+const { getHomeID, addHomeID, updateHomeID, deleteHomeID,homeLogin, searchHome} = require('../controller/HomeController');
 var router = express.Router();
 
 
@@ -12,6 +12,8 @@ router.route('/')
 router.route('/:id')
     .put(updateHomeID)
     .delete(deleteHomeID)
+
+    router.route('/search/:id').get(searchHome)
 
 // router.post('/login', homeLogin);
 
