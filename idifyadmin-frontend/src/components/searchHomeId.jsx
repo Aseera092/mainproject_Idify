@@ -48,6 +48,8 @@ const SearchHomeSpotId = () => {
               <th>Location</th>
               <th>Pin Code</th>
               <th>Ward</th>
+              <th>Email</th>
+            <th>MobileNo</th>
             </tr>
           </thead>
           <tbody>
@@ -60,6 +62,8 @@ const SearchHomeSpotId = () => {
                   longitude:{homespotid.longitude}
                 </td>
                 <td>{homespotid.pincode}</td>
+                <td>{homespotid.wardNo}</td>
+                <td>{homespotid.email}</td>
                 <td>{homespotid.wardNo}</td>
               </tr>
             )}

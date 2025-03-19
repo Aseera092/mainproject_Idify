@@ -106,14 +106,14 @@ class _MemberHomePageState extends State<MemberHomePage> {
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
-            child: IconButton(
-              icon: const Icon(Icons.notifications_outlined, color: Colors.white),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Notifications feature coming soon', style: GoogleFonts.poppins())),
-                );
-              },
-            ),
+            // child: IconButton(
+            //   icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+            //   onPressed: () {
+            //     ScaffoldMessenger.of(context).showSnackBar(
+            //       SnackBar(content: Text('Notifications feature coming soon', style: GoogleFonts.poppins())),
+            //     );
+            //   },
+            // ),
           ),
         ],
       ),
@@ -481,21 +481,21 @@ class _MemberHomePageState extends State<MemberHomePage> {
                   child: Icon(Icons.person, size: 45, color: Colors.indigo),
                 ),
                 const SizedBox(height: 10),
-                Text(
-                  memberName,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  memberEmail,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 14,
-                  ),
-                ),
+                // Text(
+                //   memberName,
+                //   style: GoogleFonts.poppins(
+                //     color: Colors.white,
+                //     fontSize: 18,
+                //     fontWeight: FontWeight.bold,
+                //   ),
+                // ),
+                // Text(
+                //   memberEmail,
+                //   style: GoogleFonts.poppins(
+                //     color: Colors.white.withOpacity(0.9),
+                //     fontSize: 14,
+                //   ),
+                // ),
               ],
             ),
           ),

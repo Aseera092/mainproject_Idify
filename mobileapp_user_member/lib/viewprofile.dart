@@ -129,6 +129,12 @@ class _ViewprofileState extends State<Viewprofileuser> {
                             ),
                             _buildInfoCard(
                               context,
+                              "wardNo",
+                              userData?['wardNo'] ?? "1",
+                              Icons.phone,
+                            ),
+                            _buildInfoCard(
+                              context,
                               "Location",
                               userData?['district'] ?? "New York, USA",
                               Icons.location_on,

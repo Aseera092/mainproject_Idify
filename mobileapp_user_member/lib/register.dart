@@ -519,6 +519,7 @@ class _RegisterPageState extends State<Register> {
                         controller: _rationCardNoController, 
                         label: "Ration Card Number",
                         icon: Icons.credit_card,
+                        hintText: "Enter 10-digit number",
                         validator: (value) => value!.isEmpty ? "Ration card number is required" : null,
                       ),
                       SizedBox(height: 16),
@@ -626,6 +627,7 @@ class _RegisterPageState extends State<Register> {
     required IconData icon,
     TextInputType keyboardType = TextInputType.text,
     bool isPassword = false,
+    String? hintText,
     required String? Function(String?) validator,
   }) {
     return Padding(
@@ -634,6 +636,7 @@ class _RegisterPageState extends State<Register> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
+          hintText: hintText,
           prefixIcon: Icon(icon, color: Colors.blue),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),

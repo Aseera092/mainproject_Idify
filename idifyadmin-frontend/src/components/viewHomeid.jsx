@@ -45,6 +45,7 @@ const ViewHomeSpotId = () => {
   };
 
   return (
+    
     <div className='container'>
       <h2>Home Spot IDs</h2>
       <table className='table'>
@@ -55,6 +56,8 @@ const ViewHomeSpotId = () => {
             <th>Location</th>
             <th>Pin Code</th>
             <th>Ward</th>
+            <th>Email</th>
+            <th>MobileNo</th>
            
           </tr>
         </thead>
@@ -66,6 +69,8 @@ const ViewHomeSpotId = () => {
               <td>latitude: {spot.latitude}<br/>longitude: {spot.longitude}</td>
               <td> {spot.pincode}</td>
               <td> {spot.wardNo}</td>
+              <td> {spot.email}</td>
+              <td> {spot.MobileNo}</td>
               {/* <td>
                 <button onClick={() => setSelectedSpot(spot)} data-bs-toggle='modal' data-bs-target='#editModal'>Edit</button>
                 <button onClick={() => deleteSpotById(spot._id)}>Delete</button>

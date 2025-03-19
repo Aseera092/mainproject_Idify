@@ -5,6 +5,7 @@ import 'package:idfy_user_application/notification.dart';
 import 'package:idfy_user_application/complaint.dart';
 import 'package:idfy_user_application/trackComplaintas.dart';
 import 'package:idfy_user_application/userEventView.dart';
+import 'package:idfy_user_application/userSettings.dart';
 import 'package:idfy_user_application/viewprofile.dart'; // Import Viewprofileuser
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -516,6 +517,15 @@ class _UserHomePageState extends State<UserHomePage> {
                           context,
                           MaterialPageRoute(
                               builder: (context) => AboutUsPage())),
+                    ),
+                    _buildDrawerItem(
+                      context,
+                      icon: Icons.info_outline,
+                      title: "Settings",
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Settings())),
                     ),
                     const Divider(),
                     _buildDrawerItem(
